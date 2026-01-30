@@ -1,4 +1,4 @@
-import type { InboxItemData, PrototypeState, JamItemData, InviteItemData } from './types';
+import type { InboxItemData, PrototypeState, JamItemData, InviteItemData, ConversationMessage } from './types';
 
 // Sample avatar URLs using DiceBear
 const avatars = [
@@ -295,3 +295,67 @@ export const inviteItems: InviteItemData[] = [
     inviterAvatar: avatars[1],
   },
 ];
+
+// Conversation messages generation
+const conversationSnippets = [
+  'supposedly they should finish before daily but wanted to lyk',
+  'thx for heads up! you can always just join & listen, nw',
+  'were you able to reproduce this issue? specifically the count mismatch',
+  'testing msgs',
+  'any chance youre free to chat slightly earlier? good to hop on anytime!',
+  'sure!!',
+  'I mean, I just saw your message and it\'s almost 12:30pst anyway',
+  'sorry',
+  'haha nw!',
+  'will wait',
+  'sounds good, let me check on that',
+  'just pushed the fix, should be good now',
+  'nice, thanks for the quick turnaround',
+  'no problem!',
+];
+
+export function generateConversation(item: InboxItemData): ConversationMessage[] {
+  const currentUserName = 'Sara Du';
+  const currentUserAvatar = avatars[3];
+  const otherName = item.title.split(',')[0]; // First name from title
+  const otherAvatar = item.avatars[0];
+
+  const messages: ConversationMessage[] = [];
+  const baseId = item.id * 100;
+
+  // Generate 6-10 messages
+  const messageCount = 6 + (item.id % 5);
+  const times = ['9:19 AM', '10:02 AM', '10:23 AM', '12:09 PM', '12:21 PM', '12:25 PM', '12:30 PM', '12:45 PM', '1:02 PM', '1:15 PM'];
+
+  for (let i = 0; i < messageCount; i++) {
+    const isCurrentUser = i % 3 === 1; // Every 3rd message from current user
+    const snippetIndex = (item.id + i) % conversationSnippets.length;
+
+    // Highlight the message that corresponds to the notification
+    const isHighlighted = item.notificationType === '@mention' && i === messageCount - 2;
+
+    messages.push({
+      id: baseId + i,
+      senderName: isCurrentUser ? currentUserName : otherName,
+      senderAvatar: isCurrentUser ? currentUserAvatar : otherAvatar,
+      content: conversationSnippets[snippetIndex],
+      timestamp: times[i % times.length],
+      isCurrentUser,
+      isHighlighted,
+      reactions: i === 1 ? [{ emoji: '👍', count: 1 }] : undefined,
+    });
+  }
+
+  // Add the preview message as the last one
+  messages.push({
+    id: baseId + messageCount,
+    senderName: otherName,
+    senderAvatar: otherAvatar,
+    content: item.preview,
+    timestamp: times[messageCount % times.length],
+    isCurrentUser: false,
+    isHighlighted: item.notificationType === 'thread-reply',
+  });
+
+  return messages;
+}

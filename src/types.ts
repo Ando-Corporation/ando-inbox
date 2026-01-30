@@ -72,3 +72,15 @@ export interface InviteItemData {
   channelName?: string;
   isPrivate?: boolean;
 }
+
+// Conversation types
+export interface ConversationMessage {
+  id: number;
+  senderName: string;
+  senderAvatar: string;
+  content: string;
+  timestamp: string;
+  isCurrentUser?: boolean;
+  isHighlighted?: boolean;
+  reactions?: { emoji: string; count: number }[];
+}
