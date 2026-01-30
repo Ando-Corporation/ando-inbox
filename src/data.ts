@@ -314,6 +314,13 @@ const conversationSnippets = [
   'no problem!',
 ];
 
+const mentionSnippets = [
+  '@Sara thoughts on this approach?',
+  '@Sara can you review when you get a chance?',
+  '@Sara you seeing this issue too?',
+  '@Sara quick question about the API',
+];
+
 export function generateConversation(item: InboxItemData): ConversationMessage[] {
   const currentUserName = 'Sara Du';
   const currentUserAvatar = avatars[3];
@@ -327,12 +334,18 @@ export function generateConversation(item: InboxItemData): ConversationMessage[]
   const messageCount = 6 + (item.id % 5);
   const times = ['9:19 AM', '10:02 AM', '10:23 AM', '12:09 PM', '12:21 PM', '12:25 PM', '12:30 PM', '12:45 PM', '1:02 PM', '1:15 PM'];
 
+  // Determine how many messages should be highlighted (unread)
+  // read = no highlights, unread with count=1 = 1 highlight, unread with count=2+ = 3 highlights
+  const unreadCount = item.readState === 'read' ? 0 : (item.count === 1 ? 1 : 3);
+
   for (let i = 0; i < messageCount; i++) {
     const isCurrentUser = i % 3 === 1; // Every 3rd message from current user
     const snippetIndex = (item.id + i) % conversationSnippets.length;
 
-    // Highlight the message that corresponds to the notification
-    const isHighlighted = item.notificationType === '@mention' && i === messageCount - 2;
+    // Messages from the end should be highlighted based on unread count
+    // But only messages from others (not current user) are "unread"
+    const distanceFromEnd = messageCount - i;
+    const isUnreadMessage = !isCurrentUser && distanceFromEnd <= unreadCount + 1 && item.readState === 'unread';
 
     messages.push({
       id: baseId + i,
@@ -341,21 +354,37 @@ export function generateConversation(item: InboxItemData): ConversationMessage[]
       content: conversationSnippets[snippetIndex],
       timestamp: times[i % times.length],
       isCurrentUser,
-      isHighlighted,
+      isHighlighted: isUnreadMessage,
       reactions: i === 1 ? [{ emoji: '👍', count: 1 }] : undefined,
     });
   }
 
-  // Add the preview message as the last one
-  messages.push({
-    id: baseId + messageCount,
-    senderName: otherName,
-    senderAvatar: otherAvatar,
-    content: item.preview,
-    timestamp: times[messageCount % times.length],
-    isCurrentUser: false,
-    isHighlighted: item.notificationType === 'thread-reply',
-  });
+  // Add the final message(s) based on notification type
+  if (item.notificationType === '@mention') {
+    // For @mentions, the last message contains the mention
+    const mentionContent = mentionSnippets[item.id % mentionSnippets.length];
+    messages.push({
+      id: baseId + messageCount,
+      senderName: otherName,
+      senderAvatar: otherAvatar,
+      content: mentionContent,
+      timestamp: times[messageCount % times.length],
+      isCurrentUser: false,
+      isHighlighted: item.readState === 'unread',
+      isMention: true,
+    });
+  } else {
+    // Regular message or thread reply
+    messages.push({
+      id: baseId + messageCount,
+      senderName: otherName,
+      senderAvatar: otherAvatar,
+      content: item.preview,
+      timestamp: times[messageCount % times.length],
+      isCurrentUser: false,
+      isHighlighted: item.readState === 'unread',
+    });
+  }
 
   return messages;
 }

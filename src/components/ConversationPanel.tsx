@@ -87,7 +87,23 @@ export function ConversationPanel({ item, messages }: ConversationPanelProps) {
                 <span className="font-semibold text-sm text-[#292524]">{message.senderName}</span>
                 <span className="text-xs text-[#a8a29e]">{message.timestamp}</span>
               </div>
-              <p className="text-sm text-[#292524] mt-0.5 whitespace-pre-wrap">{message.content}</p>
+              <p className="text-sm text-[#292524] mt-0.5 whitespace-pre-wrap">
+                {message.isMention ? (
+                  <>
+                    {message.content.split(/(@\w+)/g).map((part, i) =>
+                      part.startsWith('@') ? (
+                        <span key={i} className="bg-blue-100 text-blue-700 px-1 rounded font-medium">
+                          {part}
+                        </span>
+                      ) : (
+                        part
+                      )
+                    )}
+                  </>
+                ) : (
+                  message.content
+                )}
+              </p>
               {message.reactions && message.reactions.length > 0 && (
                 <div className="flex gap-1 mt-1.5">
                   {message.reactions.map((reaction, i) => (

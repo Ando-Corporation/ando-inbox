@@ -81,6 +81,7 @@ export interface ConversationMessage {
   content: string;
   timestamp: string;
   isCurrentUser?: boolean;
-  isHighlighted?: boolean;
+  isHighlighted?: boolean; // Yellow background for unread messages
+  isMention?: boolean; // Message contains an @mention
   reactions?: { emoji: string; count: number }[];
 }
