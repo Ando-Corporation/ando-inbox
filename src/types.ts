@@ -31,3 +31,43 @@ export interface PrototypeState {
   count: Count;
   notes: string;
 }
+
+// Jams types
+export type JamStatus = 'live' | 'ended' | 'missed' | 'scheduled';
+export type JamNotificationType = 'started' | 'joined' | 'mentioned' | 'recording-ready' | 'reminder';
+
+export interface JamItemData {
+  id: number;
+  status: JamStatus;
+  notificationType: JamNotificationType;
+  readState: ReadState;
+  timeDisplay: TimeDisplay;
+
+  // Display data
+  title: string;
+  hostName: string;
+  hostAvatar: string;
+  participantCount?: number;
+  participantAvatars?: string[];
+  channelName?: string;
+  duration?: string;
+}
+
+// Invites types
+export type InviteType = 'channel' | 'jam' | 'workspace' | 'document';
+export type InviteStatus = 'pending' | 'accepted' | 'declined' | 'expired';
+
+export interface InviteItemData {
+  id: number;
+  inviteType: InviteType;
+  status: InviteStatus;
+  timeDisplay: TimeDisplay;
+
+  // Display data
+  title: string;
+  description: string;
+  inviterName: string;
+  inviterAvatar: string;
+  channelName?: string;
+  isPrivate?: boolean;
+}

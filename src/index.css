@@ -1,12 +1,24 @@
 @import "tailwindcss";
 
 :root {
-  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: 'Geist', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: 'liga' 0;
 }
 
 body {
   margin: 0;
-  background-color: #f5f5f5;
+  background-color: #fafaf9;
+  color: #292524;
+}
+
+/* Color tokens from Figma */
+:root {
+  --colors-background-base: #ffffff;
+  --colors-stroke-weak: #e7e5e4;
+  --colors-foreground-primary: #292524;
+  --colors-foreground-secondary: #57534e;
+  --colors-foreground-tertiary: #78716c;
+  --colors-foreground-brand-primary: #3b82f6;
 }

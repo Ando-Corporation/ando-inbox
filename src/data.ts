@@ -1,33 +1,36 @@
-import type { InboxItemData, PrototypeState } from './types';
+import type { InboxItemData, PrototypeState, JamItemData, InviteItemData } from './types';
 
-// Sample avatar URLs using UI Faces alternative
+// Sample avatar URLs using DiceBear
 const avatars = [
-  'https://api.dicebear.com/7.x/avataaars/svg?seed=Sara',
-  'https://api.dicebear.com/7.x/avataaars/svg?seed=Alex',
+  'https://api.dicebear.com/7.x/avataaars/svg?seed=Ryan',
+  'https://api.dicebear.com/7.x/avataaars/svg?seed=Peter',
   'https://api.dicebear.com/7.x/avataaars/svg?seed=Jordan',
-  'https://api.dicebear.com/7.x/avataaars/svg?seed=Taylor',
-  'https://api.dicebear.com/7.x/avataaars/svg?seed=Morgan',
-  'https://api.dicebear.com/7.x/avataaars/svg?seed=Casey',
+  'https://api.dicebear.com/7.x/avataaars/svg?seed=Sara',
+  'https://api.dicebear.com/7.x/avataaars/svg?seed=Oli',
+  'https://api.dicebear.com/7.x/avataaars/svg?seed=AJ',
 ];
 
-const names = ['Sara Du', 'Alex Chen', 'Jordan Kim', 'Taylor Smith', 'Morgan Lee', 'Casey Park'];
-const channelNames = ['product', 'engineering', 'design', 'general', 'announcements'];
+const names = ['Ryan Haraki', 'Peter Choi', 'Jordan Ramos', 'Sara Du', 'Oli Wilson', 'AJ Martinez'];
+const channelNames = ['engineering', 'product', 'design', 'social', 'general'];
+
 const previews = {
   message: [
-    'Hey, can we chat about the new feature?',
-    'Just pushed the latest changes',
-    'The design looks great!',
-    'Let me know when you have time',
+    'hey, quick question about the API',
+    'sounds good, let me know',
+    'just pushed the latest changes',
+    'can you take a look at this?',
   ],
   '@mention': [
-    '@you What do you think about this approach?',
-    '@you Can you review this PR?',
-    '@you Great work on the launch!',
+    '@Oli you coming to happy hour friday?',
+    '@Oli, review PR?',
+    '@Sara what do you think about this approach?',
+    '@Jordan can you check the build?',
   ],
   'thread-reply': [
-    'Replied to your message: I agree with this direction',
-    'Replied: That makes sense, let\'s proceed',
-    'Replied to thread: Updated the doc',
+    'tests passing',
+    'looks good to me',
+    'merged, thanks!',
+    'updated the doc',
   ],
 };
 
@@ -102,9 +105,9 @@ export function generateInboxItem(state: PrototypeState, timeDisplay: InboxItemD
   } else {
     // Channel
     channelName = channelNames[state.id % channelNames.length];
-    title = `#${channelName}`;
+    title = names[state.id % names.length];
     senderName = names[state.id % names.length];
-    itemAvatars = [];
+    itemAvatars = [avatars[state.id % avatars.length]];
   }
 
   return {
@@ -122,3 +125,178 @@ export function generateInboxItem(state: PrototypeState, timeDisplay: InboxItemD
     senderName,
   };
 }
+
+// Jams sample data
+export const jamItems: JamItemData[] = [
+  {
+    id: 1,
+    status: 'live',
+    notificationType: 'started',
+    readState: 'unread',
+    timeDisplay: '<1hr',
+    title: 'Sprint Planning',
+    hostName: 'Sara Du',
+    hostAvatar: avatars[3],
+    participantCount: 5,
+    participantAvatars: [avatars[0], avatars[1], avatars[2], avatars[4]],
+    channelName: 'engineering',
+  },
+  {
+    id: 2,
+    status: 'live',
+    notificationType: 'mentioned',
+    readState: 'unread',
+    timeDisplay: '<1hr',
+    title: 'Design Review',
+    hostName: 'Jordan Ramos',
+    hostAvatar: avatars[2],
+    participantCount: 3,
+    participantAvatars: [avatars[3], avatars[5]],
+    channelName: 'design',
+  },
+  {
+    id: 3,
+    status: 'ended',
+    notificationType: 'recording-ready',
+    readState: 'unread',
+    timeDisplay: '<24hr',
+    title: 'Product Sync',
+    hostName: 'Peter Choi',
+    hostAvatar: avatars[1],
+    duration: '32m',
+    channelName: 'product',
+  },
+  {
+    id: 4,
+    status: 'missed',
+    notificationType: 'started',
+    readState: 'unread',
+    timeDisplay: '<24hr',
+    title: 'Quick Standup',
+    hostName: 'Ryan Haraki',
+    hostAvatar: avatars[0],
+    participantCount: 4,
+    participantAvatars: [avatars[1], avatars[2], avatars[3]],
+  },
+  {
+    id: 5,
+    status: 'scheduled',
+    notificationType: 'reminder',
+    readState: 'unread',
+    timeDisplay: '<1hr',
+    title: 'Team Retro',
+    hostName: 'Oli Wilson',
+    hostAvatar: avatars[4],
+    channelName: 'general',
+  },
+  {
+    id: 6,
+    status: 'ended',
+    notificationType: 'joined',
+    readState: 'read',
+    timeDisplay: '<7d',
+    title: 'API Discussion',
+    hostName: 'AJ Martinez',
+    hostAvatar: avatars[5],
+    duration: '45m',
+    participantAvatars: [avatars[0], avatars[1]],
+  },
+  {
+    id: 7,
+    status: 'ended',
+    notificationType: 'mentioned',
+    readState: 'read',
+    timeDisplay: '>7d',
+    title: 'Feature Brainstorm',
+    hostName: 'Sara Du',
+    hostAvatar: avatars[3],
+    duration: '1h 15m',
+    channelName: 'product',
+  },
+];
+
+// Invites sample data
+export const inviteItems: InviteItemData[] = [
+  {
+    id: 1,
+    inviteType: 'channel',
+    status: 'pending',
+    timeDisplay: '<1hr',
+    title: '#backend-team',
+    description: 'Private channel for backend engineers',
+    inviterName: 'Ryan Haraki',
+    inviterAvatar: avatars[0],
+    isPrivate: true,
+  },
+  {
+    id: 2,
+    inviteType: 'jam',
+    status: 'pending',
+    timeDisplay: '<1hr',
+    title: 'Architecture Review',
+    description: 'Discussing the new microservices approach',
+    inviterName: 'Peter Choi',
+    inviterAvatar: avatars[1],
+  },
+  {
+    id: 3,
+    inviteType: 'channel',
+    status: 'pending',
+    timeDisplay: '<24hr',
+    title: '#launch-2024',
+    description: 'Coordination for the Q1 launch',
+    inviterName: 'Sara Du',
+    inviterAvatar: avatars[3],
+    channelName: 'launch-2024',
+  },
+  {
+    id: 4,
+    inviteType: 'workspace',
+    status: 'pending',
+    timeDisplay: '<24hr',
+    title: 'Acme Corp',
+    description: 'Join your team on Ando',
+    inviterName: 'Jordan Ramos',
+    inviterAvatar: avatars[2],
+  },
+  {
+    id: 5,
+    inviteType: 'document',
+    status: 'pending',
+    timeDisplay: '<7d',
+    title: 'Q1 Roadmap',
+    description: 'Shared document with edit access',
+    inviterName: 'Oli Wilson',
+    inviterAvatar: avatars[4],
+  },
+  {
+    id: 6,
+    inviteType: 'channel',
+    status: 'accepted',
+    timeDisplay: '<7d',
+    title: '#announcements',
+    description: 'Company-wide announcements',
+    inviterName: 'AJ Martinez',
+    inviterAvatar: avatars[5],
+  },
+  {
+    id: 7,
+    inviteType: 'jam',
+    status: 'declined',
+    timeDisplay: '>7d',
+    title: 'Coffee Chat',
+    description: 'Casual catch-up session',
+    inviterName: 'Ryan Haraki',
+    inviterAvatar: avatars[0],
+  },
+  {
+    id: 8,
+    inviteType: 'channel',
+    status: 'expired',
+    timeDisplay: '>7d',
+    title: '#temp-project',
+    description: 'Temporary project channel',
+    inviterName: 'Peter Choi',
+    inviterAvatar: avatars[1],
+  },
+];
