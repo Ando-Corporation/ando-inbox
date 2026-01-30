@@ -20,6 +20,7 @@ export interface InboxItemData {
   avatars: string[];
   channelName?: string;
   senderName?: string;
+  threadOriginalMessage?: string; // Original message being replied to (for thread-reply type)
 }
 
 export interface PrototypeState {

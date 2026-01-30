@@ -166,7 +166,17 @@ export function InboxItem({ item }: InboxItemProps) {
           </div>
         </div>
 
-        {/* Preview text */}
+        {/* Thread original message (for thread replies) */}
+        {item.notificationType === 'thread-reply' && item.threadOriginalMessage && (
+          <div className="flex items-center gap-1.5 mt-1.5">
+            <div className="w-0.5 h-4 bg-[#d6d3d1] rounded-full shrink-0" />
+            <p className={`text-xs truncate ${isUnread ? 'text-[#78716c]' : 'text-[#a8a29e]'}`}>
+              {item.threadOriginalMessage}
+            </p>
+          </div>
+        )}
+
+        {/* Preview text (reply content) */}
         <p className={`text-sm truncate mt-0.5 ${isUnread ? 'text-[#57534e]' : 'text-[#a8a29e]'}`}>
           {item.preview}
         </p>

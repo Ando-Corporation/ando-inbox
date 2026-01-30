@@ -34,6 +34,15 @@ const previews = {
   ],
 };
 
+const threadOriginalMessages = [
+  'Can someone review PR #482?',
+  'The build is failing on main',
+  'Should we use Redis or Postgres for caching?',
+  'Shipping the new dashboard today',
+  'Anyone available for a quick sync?',
+  'Docs need updating for v2.0',
+];
+
 // All 33 prototype states from the spec
 export const prototypeStates: PrototypeState[] = [
   // 1:1 DM (6 states)
@@ -123,6 +132,9 @@ export function generateInboxItem(state: PrototypeState, timeDisplay: InboxItemD
     avatars: itemAvatars,
     channelName,
     senderName,
+    threadOriginalMessage: state.notificationType === 'thread-reply'
+      ? threadOriginalMessages[state.id % threadOriginalMessages.length]
+      : undefined,
   };
 }
 
