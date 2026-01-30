@@ -215,7 +215,41 @@ export const jamItems: JamItemData[] = [
   },
 ];
 
-// Invites sample data
+// Jam invites (shown in Jams tab)
+export const jamInviteItems: InviteItemData[] = [
+  {
+    id: 101,
+    inviteType: 'jam',
+    status: 'pending',
+    timeDisplay: '<1hr',
+    title: 'Architecture Review',
+    description: 'Discussing the new microservices approach',
+    inviterName: 'Peter Choi',
+    inviterAvatar: avatars[1],
+  },
+  {
+    id: 102,
+    inviteType: 'jam',
+    status: 'pending',
+    timeDisplay: '<24hr',
+    title: 'Design Sync',
+    description: 'Weekly design team sync',
+    inviterName: 'Jordan Ramos',
+    inviterAvatar: avatars[2],
+  },
+  {
+    id: 103,
+    inviteType: 'jam',
+    status: 'declined',
+    timeDisplay: '>7d',
+    title: 'Coffee Chat',
+    description: 'Casual catch-up session',
+    inviterName: 'Ryan Haraki',
+    inviterAvatar: avatars[0],
+  },
+];
+
+// Invites sample data (excludes jam invites)
 export const inviteItems: InviteItemData[] = [
   {
     id: 1,
@@ -227,16 +261,6 @@ export const inviteItems: InviteItemData[] = [
     inviterName: 'Ryan Haraki',
     inviterAvatar: avatars[0],
     isPrivate: true,
-  },
-  {
-    id: 2,
-    inviteType: 'jam',
-    status: 'pending',
-    timeDisplay: '<1hr',
-    title: 'Architecture Review',
-    description: 'Discussing the new microservices approach',
-    inviterName: 'Peter Choi',
-    inviterAvatar: avatars[1],
   },
   {
     id: 3,
@@ -278,16 +302,6 @@ export const inviteItems: InviteItemData[] = [
     description: 'Company-wide announcements',
     inviterName: 'AJ Martinez',
     inviterAvatar: avatars[5],
-  },
-  {
-    id: 7,
-    inviteType: 'jam',
-    status: 'declined',
-    timeDisplay: '>7d',
-    title: 'Coffee Chat',
-    description: 'Casual catch-up session',
-    inviterName: 'Ryan Haraki',
-    inviterAvatar: avatars[0],
   },
   {
     id: 8,

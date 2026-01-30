@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { InboxItem } from './components/InboxItem';
 import { JamItem } from './components/JamItem';
 import { InviteItem } from './components/InviteItem';
-import { prototypeStates, generateInboxItem, jamItems, inviteItems } from './data';
+import { prototypeStates, generateInboxItem, jamItems, jamInviteItems, inviteItems } from './data';
 import type { InboxItemData, Location, NotificationType, ReadState } from './types';
 import './App.css';
 
@@ -32,6 +32,15 @@ function App() {
     return true;
   });
 
+  const filteredJamInvites = jamInviteItems.filter((invite) => {
+    if (filterReadState !== 'All') {
+      const isPending = invite.status === 'pending';
+      if (filterReadState === 'unread' && !isPending) return false;
+      if (filterReadState === 'read' && isPending) return false;
+    }
+    return true;
+  });
+
   const filteredInvites = inviteItems.filter((invite) => {
     if (filterReadState !== 'All') {
       const isPending = invite.status === 'pending';
@@ -50,7 +59,7 @@ function App() {
 
   const unreadCounts = {
     inbox: prototypeStates.filter((s) => s.readState === 'unread').length,
-    jams: jamItems.filter((j) => j.readState === 'unread').length,
+    jams: jamItems.filter((j) => j.readState === 'unread').length + jamInviteItems.filter((i) => i.status === 'pending').length,
     invites: inviteItems.filter((i) => i.status === 'pending').length,
   };
 
@@ -230,10 +239,29 @@ function App() {
 
             {activeTab === 'jams' && (
               <>
-                {filteredJams.map((jam) => (
-                  <JamItem key={jam.id} item={jam} />
-                ))}
-                {filteredJams.length === 0 && (
+                {filteredJamInvites.length > 0 && (
+                  <>
+                    <div className="px-4 py-2 bg-[#fafaf9] border-b border-[#e7e5e4]">
+                      <span className="text-xs font-medium text-[#78716c] uppercase tracking-wide">Jam Invites</span>
+                    </div>
+                    {filteredJamInvites.map((invite) => (
+                      <InviteItem key={invite.id} item={invite} />
+                    ))}
+                  </>
+                )}
+                {filteredJams.length > 0 && (
+                  <>
+                    {filteredJamInvites.length > 0 && (
+                      <div className="px-4 py-2 bg-[#fafaf9] border-b border-[#e7e5e4]">
+                        <span className="text-xs font-medium text-[#78716c] uppercase tracking-wide">Jam Activity</span>
+                      </div>
+                    )}
+                    {filteredJams.map((jam) => (
+                      <JamItem key={jam.id} item={jam} />
+                    ))}
+                  </>
+                )}
+                {filteredJams.length === 0 && filteredJamInvites.length === 0 && (
                   <div className="px-4 py-12 text-center text-[#78716c]">
                     No Jams to show
                   </div>
@@ -265,7 +293,7 @@ function App() {
               <div className="text-[#78716c]">Inbox states</div>
             </div>
             <div className="bg-[#fafaf9] rounded-lg p-3">
-              <div className="text-2xl font-semibold text-[#292524]">{jamItems.length}</div>
+              <div className="text-2xl font-semibold text-[#292524]">{jamItems.length + jamInviteItems.length}</div>
               <div className="text-[#78716c]">Jam states</div>
             </div>
             <div className="bg-[#fafaf9] rounded-lg p-3">
@@ -278,7 +306,7 @@ function App() {
 
       {/* Footer */}
       <footer className="py-8 text-center text-sm text-[#a8a29e]">
-        Ando Inbox Prototypes · {prototypeStates.length + jamItems.length + inviteItems.length} total states
+        Ando Inbox Prototypes · {prototypeStates.length + jamItems.length + jamInviteItems.length + inviteItems.length} total states
       </footer>
     </div>
   );
