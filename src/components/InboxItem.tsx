@@ -183,8 +183,8 @@ export function InboxItem({ item, isSelected }: InboxItemProps) {
 
         </div>
 
-        {/* Thread original message (for thread replies and @mention-in-thread) */}
-        {(item.notificationType === 'thread-reply' || item.notificationType === '@mention-in-thread') && item.threadOriginalMessage && (
+        {/* Thread original message (for thread replies, @mention-in-thread, and Jam started in thread) */}
+        {(item.notificationType === 'thread-reply' || item.notificationType === '@mention-in-thread' || item.jamNotificationType === 'thread-started') && item.threadOriginalMessage && (
           <div className="flex items-center gap-1.5 mt-1">
             <div className="w-0.5 h-4 bg-[#d6d3d1] rounded-full shrink-0" />
             <p className={`text-xs truncate ${isUnread ? 'text-[#78716c]' : 'text-[#a8a29e]'}`}>
