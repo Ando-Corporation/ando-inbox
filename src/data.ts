@@ -32,6 +32,12 @@ const previews = {
     'merged, thanks!',
     'updated the doc',
   ],
+  '@mention-in-thread': [
+    '@Sara thoughts on this approach?',
+    '@Oli can you take a look?',
+    '@Jordan what do you think?',
+    '@Sara any updates on this?',
+  ],
 };
 
 const threadOriginalMessages = [
@@ -45,15 +51,18 @@ const threadOriginalMessages = [
 
 // All 33 prototype states from the spec
 export const prototypeStates: PrototypeState[] = [
-  // 1:1 DM (6 states)
+  // 1:1 DM (9 states)
   { id: 1, location: '1:1 DM', notificationType: 'message', readState: 'unread', count: 1, notes: 'Single new message' },
   { id: 2, location: '1:1 DM', notificationType: 'message', readState: 'unread', count: '2+', notes: 'Multiple new messages' },
   { id: 3, location: '1:1 DM', notificationType: 'message', readState: 'read', count: null, notes: 'Read messages' },
   { id: 4, location: '1:1 DM', notificationType: 'thread-reply', readState: 'unread', count: 1, notes: 'Single thread reply' },
   { id: 5, location: '1:1 DM', notificationType: 'thread-reply', readState: 'unread', count: '2+', notes: 'Multiple thread replies' },
   { id: 6, location: '1:1 DM', notificationType: 'thread-reply', readState: 'read', count: null, notes: 'Read thread' },
+  { id: 37, location: '1:1 DM', notificationType: '@mention-in-thread', readState: 'unread', count: 1, notes: '1:1 DM, @mention in thread, single' },
+  { id: 38, location: '1:1 DM', notificationType: '@mention-in-thread', readState: 'unread', count: '2+', notes: '1:1 DM, @mention in thread, multiple' },
+  { id: 39, location: '1:1 DM', notificationType: '@mention-in-thread', readState: 'read', count: null, notes: '1:1 DM, @mention in thread, read' },
 
-  // Multi-DM 2-avatars (9 states)
+  // Multi-DM 2-avatars (12 states)
   { id: 7, location: 'Multi-DM', participantDisplay: '2-avatars', notificationType: 'message', readState: 'unread', count: 1, notes: '3-person group, single message' },
   { id: 8, location: 'Multi-DM', participantDisplay: '2-avatars', notificationType: 'message', readState: 'unread', count: '2+', notes: '3-person group, multiple messages' },
   { id: 9, location: 'Multi-DM', participantDisplay: '2-avatars', notificationType: 'message', readState: 'read', count: null, notes: '3-person group, read' },
@@ -63,8 +72,11 @@ export const prototypeStates: PrototypeState[] = [
   { id: 13, location: 'Multi-DM', participantDisplay: '2-avatars', notificationType: 'thread-reply', readState: 'unread', count: 1, notes: '3-person group, single thread reply' },
   { id: 14, location: 'Multi-DM', participantDisplay: '2-avatars', notificationType: 'thread-reply', readState: 'unread', count: '2+', notes: '3-person group, multiple thread replies' },
   { id: 15, location: 'Multi-DM', participantDisplay: '2-avatars', notificationType: 'thread-reply', readState: 'read', count: null, notes: '3-person group, read thread' },
+  { id: 40, location: 'Multi-DM', participantDisplay: '2-avatars', notificationType: '@mention-in-thread', readState: 'unread', count: 1, notes: '3-person group, @mention in thread, single' },
+  { id: 41, location: 'Multi-DM', participantDisplay: '2-avatars', notificationType: '@mention-in-thread', readState: 'unread', count: '2+', notes: '3-person group, @mention in thread, multiple' },
+  { id: 42, location: 'Multi-DM', participantDisplay: '2-avatars', notificationType: '@mention-in-thread', readState: 'read', count: null, notes: '3-person group, @mention in thread, read' },
 
-  // Multi-DM 3+-stack (9 states)
+  // Multi-DM 3+-stack (12 states)
   { id: 16, location: 'Multi-DM', participantDisplay: '3+-stack', notificationType: 'message', readState: 'unread', count: 1, notes: '4+ person group, single message' },
   { id: 17, location: 'Multi-DM', participantDisplay: '3+-stack', notificationType: 'message', readState: 'unread', count: '2+', notes: '4+ person group, multiple messages' },
   { id: 18, location: 'Multi-DM', participantDisplay: '3+-stack', notificationType: 'message', readState: 'read', count: null, notes: '4+ person group, read' },
@@ -74,8 +86,11 @@ export const prototypeStates: PrototypeState[] = [
   { id: 22, location: 'Multi-DM', participantDisplay: '3+-stack', notificationType: 'thread-reply', readState: 'unread', count: 1, notes: '4+ person group, single thread reply' },
   { id: 23, location: 'Multi-DM', participantDisplay: '3+-stack', notificationType: 'thread-reply', readState: 'unread', count: '2+', notes: '4+ person group, multiple thread replies' },
   { id: 24, location: 'Multi-DM', participantDisplay: '3+-stack', notificationType: 'thread-reply', readState: 'read', count: null, notes: '4+ person group, read thread' },
+  { id: 34, location: 'Multi-DM', participantDisplay: '3+-stack', notificationType: '@mention-in-thread', readState: 'unread', count: 1, notes: '4+ person group, @mention in thread, single' },
+  { id: 35, location: 'Multi-DM', participantDisplay: '3+-stack', notificationType: '@mention-in-thread', readState: 'unread', count: '2+', notes: '4+ person group, @mention in thread, multiple' },
+  { id: 36, location: 'Multi-DM', participantDisplay: '3+-stack', notificationType: '@mention-in-thread', readState: 'read', count: null, notes: '4+ person group, @mention in thread, read' },
 
-  // Channel (9 states)
+  // Channel (12 states)
   { id: 25, location: 'Channel', notificationType: 'message', readState: 'unread', count: 1, notes: 'Single channel message' },
   { id: 26, location: 'Channel', notificationType: 'message', readState: 'unread', count: '2+', notes: 'Multiple channel messages' },
   { id: 27, location: 'Channel', notificationType: 'message', readState: 'read', count: null, notes: 'Read channel' },
@@ -85,6 +100,9 @@ export const prototypeStates: PrototypeState[] = [
   { id: 31, location: 'Channel', notificationType: 'thread-reply', readState: 'unread', count: 1, notes: 'Single thread reply in channel' },
   { id: 32, location: 'Channel', notificationType: 'thread-reply', readState: 'unread', count: '2+', notes: 'Multiple thread replies in channel' },
   { id: 33, location: 'Channel', notificationType: 'thread-reply', readState: 'read', count: null, notes: 'Read thread in channel' },
+  { id: 43, location: 'Channel', notificationType: '@mention-in-thread', readState: 'unread', count: 1, notes: 'Channel, @mention in thread, single' },
+  { id: 44, location: 'Channel', notificationType: '@mention-in-thread', readState: 'unread', count: '2+', notes: 'Channel, @mention in thread, multiple' },
+  { id: 45, location: 'Channel', notificationType: '@mention-in-thread', readState: 'read', count: null, notes: 'Channel, @mention in thread, read' },
 ];
 
 export function generateInboxItem(state: PrototypeState, timeDisplay: InboxItemData['timeDisplay'] = '<1hr'): InboxItemData {
@@ -132,7 +150,7 @@ export function generateInboxItem(state: PrototypeState, timeDisplay: InboxItemD
     avatars: itemAvatars,
     channelName,
     senderName,
-    threadOriginalMessage: state.notificationType === 'thread-reply'
+    threadOriginalMessage: (state.notificationType === 'thread-reply' || state.notificationType === '@mention-in-thread')
       ? threadOriginalMessages[state.id % threadOriginalMessages.length]
       : undefined,
   };
@@ -325,8 +343,8 @@ export function generateConversation(item: InboxItemData): ConversationMessage[]
 
   const times = ['9:19 AM', '10:02 AM', '10:23 AM', '12:09 PM', '12:21 PM', '12:25 PM', '12:30 PM', '12:45 PM', '1:02 PM', '1:15 PM'];
 
-  // For thread replies, show a different structure
-  if (item.notificationType === 'thread-reply') {
+  // For thread replies and @mention-in-thread, show thread structure
+  if (item.notificationType === 'thread-reply' || item.notificationType === '@mention-in-thread') {
     // Generate some conversation history first
     const historyCount = 4 + (item.id % 3);
     for (let i = 0; i < historyCount; i++) {
@@ -390,6 +408,7 @@ export function generateConversation(item: InboxItemData): ConversationMessage[]
       timestamp: times[8],
       isCurrentUser: false,
       isHighlighted: item.readState === 'unread',
+      isMention: item.notificationType === '@mention-in-thread',
     });
 
     // Add the thread parent with its replies

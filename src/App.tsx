@@ -19,7 +19,7 @@ function App() {
   const [filterReadState, setFilterReadState] = useState<FilterReadState>('All');
   const [timeDisplay, setTimeDisplay] = useState<InboxItemData['timeDisplay']>('<1hr');
   const [selectedItem, setSelectedItem] = useState<InboxItemData | null>(null);
-  const [showDevNotes, setShowDevNotes] = useState(true);
+  // Removed unused state
 
   const filteredStates = prototypeStates.filter((state) => {
     if (filterLocation !== 'All' && state.location !== filterLocation) return false;
@@ -70,6 +70,99 @@ function App() {
     setSelectedItem(item);
   };
 
+  // Generate contextual dev notes for selected item
+  const getDevNotes = (item: InboxItemData) => {
+    const notes: { label: string; value: string }[] = [];
+
+    // Basic state info
+    notes.push({ label: 'State ID', value: `#${item.id}` });
+    notes.push({ label: 'Location', value: item.location });
+    notes.push({ label: 'Notification Type', value: item.notificationType });
+    notes.push({ label: 'Read State', value: item.readState });
+    notes.push({ label: 'Count', value: item.count === null ? 'null' : String(item.count) });
+
+    // Avatar treatment - always single avatar
+    let avatarPerson = '';
+    if (item.notificationType === '@mention' || item.notificationType === '@mention-in-thread') {
+      avatarPerson = 'Person who @mentioned you (overrides last sender)';
+    } else {
+      avatarPerson = 'Person who last messaged';
+    }
+    notes.push({ label: 'Avatar', value: avatarPerson });
+
+    // Location badge
+    let locationBadge = '';
+    if (item.location === '1:1 DM') {
+      locationBadge = 'Single person icon badge';
+    } else if (item.location === 'Multi-DM') {
+      locationBadge = 'Group icon badge';
+    } else if (item.location === 'Channel') {
+      locationBadge = 'Hashtag (#) icon badge';
+    }
+    notes.push({ label: 'Location Badge', value: locationBadge });
+
+
+    // Row styling
+    let rowStyle = '';
+    if (item.readState === 'unread') {
+      rowStyle = 'Purple dot on right side, vertically centered';
+    } else {
+      rowStyle = 'No unread indicator';
+    }
+    notes.push({ label: 'Unread Indicator', value: rowStyle });
+    notes.push({ label: 'Selected Style', value: 'Purple ring around entire row' });
+
+    // Count badge
+    let countBadge = '';
+    if (item.readState === 'unread' && item.count) {
+      countBadge = item.count === 1 ? 'Green dot (no number)' : 'Green pill with "2+"';
+    } else {
+      countBadge = 'None';
+    }
+    notes.push({ label: 'Count Badge', value: countBadge });
+
+    // Highlighted messages
+    let highlightedCount = '';
+    if (item.readState === 'read') {
+      highlightedCount = '0 (read state = no highlights)';
+    } else if (item.count === 1) {
+      highlightedCount = '1 message highlighted yellow';
+    } else if (item.count === '2+') {
+      highlightedCount = '3 messages highlighted yellow';
+    } else {
+      highlightedCount = '0';
+    }
+    notes.push({ label: 'Highlighted Messages', value: highlightedCount });
+
+    // Time styling
+    const timeStyle = item.readState === 'unread' ? 'Blue, medium weight' : 'Grey, normal weight';
+    notes.push({ label: 'Time Style', value: timeStyle });
+
+    // Special behaviors
+    const specialBehaviors: string[] = [];
+    if (item.notificationType === 'thread-reply') {
+      specialBehaviors.push('Shows original thread message in preview with vertical bar');
+      specialBehaviors.push('Conversation shows Slack-style nested thread');
+    }
+    if (item.notificationType === '@mention') {
+      specialBehaviors.push('@mention styled with blue background in conversation');
+    }
+    if (item.notificationType === '@mention-in-thread') {
+      specialBehaviors.push('Shows original thread message in preview with vertical bar');
+      specialBehaviors.push('Conversation shows Slack-style nested thread');
+      specialBehaviors.push('@mention styled with blue background in thread reply');
+    }
+    if (item.location === 'Channel') {
+      specialBehaviors.push('Header shows #channel-name');
+      specialBehaviors.push('Event label shows "Mention in #channel" or "Thread reply in #channel"');
+    }
+    if (specialBehaviors.length > 0) {
+      notes.push({ label: 'Special Behaviors', value: specialBehaviors.join(' · ') });
+    }
+
+    return notes;
+  };
+
   return (
     <div className="min-h-screen bg-[#fafaf9]">
       {/* Header */}
@@ -85,65 +178,6 @@ function App() {
           </div>
         </div>
       </header>
-
-      {/* Dev Notes */}
-      <div className="max-w-7xl mx-auto px-4 mt-4">
-        <div className="bg-blue-50 border border-blue-200 rounded-lg overflow-hidden">
-          <button
-            onClick={() => setShowDevNotes(!showDevNotes)}
-            className="w-full px-4 py-2 flex items-center justify-between text-left hover:bg-blue-100 transition-colors"
-          >
-            <span className="text-sm font-medium text-blue-800">Development Notes</span>
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 16 16"
-              fill="none"
-              className={`text-blue-600 transition-transform ${showDevNotes ? 'rotate-180' : ''}`}
-            >
-              <path d="M4 6L8 10L12 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-          </button>
-          {showDevNotes && (
-            <div className="px-4 pb-4 text-sm text-blue-900 space-y-3">
-              <div>
-                <h4 className="font-semibold mb-1">Avatar Rules</h4>
-                <ul className="list-disc list-inside space-y-0.5 text-blue-800">
-                  <li><strong>1:1 DM:</strong> Show the other person's avatar</li>
-                  <li><strong>Multi-DM:</strong> Stack of 2 avatars (3+ shows +N badge)</li>
-                  <li><strong>Channel:</strong> Show sender's avatar with small # badge (person who sent message or @'ed you)</li>
-                </ul>
-              </div>
-              <div>
-                <h4 className="font-semibold mb-1">Read State & Count</h4>
-                <ul className="list-disc list-inside space-y-0.5 text-blue-800">
-                  <li><strong>read:</strong> No badge, no highlighted messages in conversation</li>
-                  <li><strong>unread + count=1:</strong> Green dot badge, 1 message highlighted yellow</li>
-                  <li><strong>unread + count=2+:</strong> Green "2+" badge, 3 messages highlighted yellow</li>
-                  <li>Simplified model: "read" means all messages read (no partial-read state like Slack)</li>
-                </ul>
-              </div>
-              <div>
-                <h4 className="font-semibold mb-1">Notification Types</h4>
-                <ul className="list-disc list-inside space-y-0.5 text-blue-800">
-                  <li><strong>message:</strong> Regular message, no special badge on avatar</li>
-                  <li><strong>@mention:</strong> Blue @ badge on avatar, mention styled with blue pill in conversation</li>
-                  <li><strong>thread-reply:</strong> Purple thread badge on avatar, shown as nested thread in conversation</li>
-                </ul>
-              </div>
-              <div>
-                <h4 className="font-semibold mb-1">Conversation Panel</h4>
-                <ul className="list-disc list-inside space-y-0.5 text-blue-800">
-                  <li>Click notification to show conversation on right</li>
-                  <li>Selection indicated by grey left border on row</li>
-                  <li>Selection resets when changing any filter or tab</li>
-                  <li>Thread replies show in Slack-style nested format</li>
-                </ul>
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
 
       {/* Main Content - Split View */}
       <main className="max-w-7xl mx-auto py-6 px-4">
@@ -215,7 +249,7 @@ function App() {
                         Type
                       </label>
                       <div className="flex gap-1">
-                        {(['All', 'message', '@mention', 'thread-reply'] as FilterNotification[]).map((notif) => (
+                        {(['All', 'message', '@mention', 'thread-reply', '@mention-in-thread'] as FilterNotification[]).map((notif) => (
                           <button
                             key={notif}
                             onClick={() => { setFilterNotification(notif); setSelectedItem(null); }}
@@ -288,23 +322,58 @@ function App() {
               <div className="divide-y divide-[#e7e5e4] max-h-[600px] overflow-y-auto">
                 {activeTab === 'inbox' && (
                   <>
-                    {inboxItems.map((item) => (
-                      <div
-                        key={item.id}
-                        className={`relative group cursor-pointer ${selectedItem?.id === item.id ? 'border-l-[3px] border-l-[#a8a29e]' : 'border-l-[3px] border-l-transparent'}`}
-                        onClick={() => handleItemClick(item)}
-                      >
-                        <InboxItem item={item} />
-                        <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-                          <div className="bg-[#292524]/90 text-white text-[10px] px-2 py-1 rounded">
-                            #{item.id} · {item.location}
-                            {item.participantDisplay && ` (${item.participantDisplay})`}
-                            · {item.notificationType} · {item.readState}
-                            {item.count && ` · ${item.count}`}
+                    {(() => {
+                      // Get date label based on timeDisplay and item index for variety
+                      const getDateLabel = (item: InboxItemData, index: number): string => {
+                        if (item.timeDisplay === '<1hr' || item.timeDisplay === '<24hr') {
+                          return 'Today';
+                        }
+                        if (item.timeDisplay === '<7d') {
+                          // Vary between a few recent days
+                          const days = ['Monday, January 27th', 'Sunday, January 26th', 'Saturday, January 25th'];
+                          return days[index % days.length];
+                        }
+                        // >7d - vary between older dates
+                        const olderDays = ['Friday, January 17th', 'Tuesday, January 14th', 'Monday, January 6th', 'Friday, December 20th'];
+                        return olderDays[index % olderDays.length];
+                      };
+
+                      let currentDateLabel = '';
+
+                      return inboxItems.map((item, index) => {
+                        const dateLabel = getDateLabel(item, index);
+                        const showDateHeader = dateLabel !== currentDateLabel;
+                        if (showDateHeader) {
+                          currentDateLabel = dateLabel;
+                        }
+
+                        return (
+                          <div key={item.id}>
+                            {showDateHeader && (
+                              <div className="px-4 py-2 bg-[#fafaf9] border-b border-[#e7e5e4]">
+                                <span className="text-sm font-medium text-[#57534e]">
+                                  {dateLabel}
+                                </span>
+                              </div>
+                            )}
+                            <div
+                              className="relative group cursor-pointer"
+                              onClick={() => handleItemClick(item)}
+                            >
+                              <InboxItem item={item} isSelected={selectedItem?.id === item.id} />
+                              <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                                <div className="bg-[#292524]/90 text-white text-[10px] px-2 py-1 rounded">
+                                  #{item.id} · {item.location}
+                                  {item.participantDisplay && ` (${item.participantDisplay})`}
+                                  · {item.notificationType} · {item.readState}
+                                  {item.count && ` · ${item.count}`}
+                                </div>
+                              </div>
+                            </div>
                           </div>
-                        </div>
-                      </div>
-                    ))}
+                        );
+                      });
+                    })()}
                     {inboxItems.length === 0 && (
                       <div className="px-4 py-12 text-center text-[#78716c]">
                         No states match the current filters
@@ -365,7 +434,7 @@ function App() {
               <h2 className="font-medium text-[#292524] mb-3">State Summary</h2>
               <div className="grid grid-cols-3 gap-4 text-sm">
                 <div className="bg-[#fafaf9] rounded-lg p-3">
-                  <div className="text-2xl font-semibold text-[#292524]">33</div>
+                  <div className="text-2xl font-semibold text-[#292524]">{prototypeStates.length}</div>
                   <div className="text-[#78716c]">Inbox states</div>
                 </div>
                 <div className="bg-[#fafaf9] rounded-lg p-3">
@@ -381,8 +450,31 @@ function App() {
           </div>
 
           {/* Right Panel - Conversation */}
-          <div className="flex-1 min-w-0">
-            <div className="bg-white rounded-xl shadow-sm border border-[#e7e5e4] overflow-hidden h-[700px]">
+          <div className="flex-1 min-w-0 flex flex-col gap-4">
+            {/* Contextual Dev Notes */}
+            {selectedItem && (
+              <div className="bg-slate-800 rounded-xl shadow-sm border border-slate-700 p-4 text-white">
+                <div className="flex items-center gap-2 mb-3">
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="text-slate-400">
+                    <path d="M2 4L8 2L14 4V12L8 14L2 12V4Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/>
+                    <path d="M8 6V10M8 2V6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                  </svg>
+                  <span className="text-xs font-semibold text-slate-400 uppercase tracking-wide">Dev Notes</span>
+                  <span className="text-xs text-slate-500 ml-auto">State #{selectedItem.id}</span>
+                </div>
+                <div className="grid grid-cols-2 gap-x-6 gap-y-2 text-sm">
+                  {getDevNotes(selectedItem).map((note, i) => (
+                    <div key={i} className={note.label === 'Special Behaviors' ? 'col-span-2' : ''}>
+                      <span className="text-slate-400">{note.label}:</span>{' '}
+                      <span className="text-slate-200">{note.value}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Conversation Panel */}
+            <div className="bg-white rounded-xl shadow-sm border border-[#e7e5e4] overflow-hidden flex-1 min-h-[500px]">
               {selectedItem ? (
                 <ConversationPanel
                   item={selectedItem}

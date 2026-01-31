@@ -1,6 +1,6 @@
 export type Location = '1:1 DM' | 'Multi-DM' | 'Channel';
 export type ParticipantDisplay = '2-avatars' | '3+-stack' | null;
-export type NotificationType = 'message' | '@mention' | 'thread-reply';
+export type NotificationType = 'message' | '@mention' | 'thread-reply' | '@mention-in-thread';
 export type ReadState = 'unread' | 'read';
 export type Count = 1 | '2+' | null;
 export type TimeDisplay = '<1hr' | '<24hr' | '<7d' | '>7d';
