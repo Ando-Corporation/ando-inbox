@@ -314,13 +314,6 @@ const conversationSnippets = [
   'no problem!',
 ];
 
-const mentionSnippets = [
-  '@Sara thoughts on this approach?',
-  '@Sara can you review when you get a chance?',
-  '@Sara you seeing this issue too?',
-  '@Sara quick question about the API',
-];
-
 export function generateConversation(item: InboxItemData): ConversationMessage[] {
   const currentUserName = 'Sara Du';
   const currentUserAvatar = avatars[3];
@@ -461,12 +454,12 @@ export function generateConversation(item: InboxItemData): ConversationMessage[]
 
   // Add the final message based on notification type
   if (item.notificationType === '@mention') {
-    const mentionContent = mentionSnippets[item.id % mentionSnippets.length];
+    // Use the same preview text from the inbox item so left and right match
     messages.push({
       id: baseId + messageCount + 10,
       senderName: otherName,
       senderAvatar: otherAvatar,
-      content: mentionContent,
+      content: item.preview,
       timestamp: times[(messageCount + 2) % times.length],
       isCurrentUser: false,
       isHighlighted: item.readState === 'unread',
