@@ -330,13 +330,97 @@ export function generateConversation(item: InboxItemData): ConversationMessage[]
   const messages: ConversationMessage[] = [];
   const baseId = item.id * 100;
 
-  // Generate 6-10 messages (these are all "read" history)
-  const messageCount = 6 + (item.id % 5);
   const times = ['9:19 AM', '10:02 AM', '10:23 AM', '12:09 PM', '12:21 PM', '12:25 PM', '12:30 PM', '12:45 PM', '1:02 PM', '1:15 PM'];
+
+  // For thread replies, show a different structure
+  if (item.notificationType === 'thread-reply') {
+    // Generate some conversation history first
+    const historyCount = 4 + (item.id % 3);
+    for (let i = 0; i < historyCount; i++) {
+      const isCurrentUser = i % 3 === 1;
+      const snippetIndex = (item.id + i) % conversationSnippets.length;
+      messages.push({
+        id: baseId + i,
+        senderName: isCurrentUser ? currentUserName : otherName,
+        senderAvatar: isCurrentUser ? currentUserAvatar : otherAvatar,
+        content: conversationSnippets[snippetIndex],
+        timestamp: times[i % times.length],
+        isCurrentUser,
+        isHighlighted: false,
+        reactions: i === 1 ? [{ emoji: '👍', count: 1 }] : undefined,
+      });
+    }
+
+    // Create the thread parent message (the original message being replied to)
+    const threadReplies: ConversationMessage[] = [];
+    const unreadCount = item.readState === 'read' ? 0 : (item.count === 1 ? 1 : 3);
+
+    // Add some read replies in the thread
+    threadReplies.push({
+      id: baseId + 50,
+      senderName: currentUserName,
+      senderAvatar: currentUserAvatar,
+      content: 'checking on this now',
+      timestamp: times[5],
+      isCurrentUser: true,
+      isHighlighted: false,
+    });
+
+    // Add unread replies based on count
+    if (unreadCount >= 3) {
+      threadReplies.push({
+        id: baseId + 51,
+        senderName: otherName,
+        senderAvatar: otherAvatar,
+        content: conversationSnippets[(item.id + 10) % conversationSnippets.length],
+        timestamp: times[6],
+        isCurrentUser: false,
+        isHighlighted: true,
+      });
+      threadReplies.push({
+        id: baseId + 52,
+        senderName: otherName,
+        senderAvatar: otherAvatar,
+        content: conversationSnippets[(item.id + 11) % conversationSnippets.length],
+        timestamp: times[7],
+        isCurrentUser: false,
+        isHighlighted: true,
+      });
+    }
+
+    // Final thread reply (always the preview message)
+    threadReplies.push({
+      id: baseId + 53,
+      senderName: otherName,
+      senderAvatar: otherAvatar,
+      content: item.preview,
+      timestamp: times[8],
+      isCurrentUser: false,
+      isHighlighted: item.readState === 'unread',
+    });
+
+    // Add the thread parent with its replies
+    messages.push({
+      id: baseId + 40,
+      senderName: names[(item.id + 2) % names.length],
+      senderAvatar: avatars[(item.id + 2) % avatars.length],
+      content: item.threadOriginalMessage || threadOriginalMessages[item.id % threadOriginalMessages.length],
+      timestamp: times[4],
+      isCurrentUser: false,
+      isHighlighted: false,
+      isThreadParent: true,
+      threadReplies,
+    });
+
+    return messages;
+  }
+
+  // Regular messages and @mentions - existing logic
+  const messageCount = 6 + (item.id % 5);
 
   // Build the conversation history (all read messages)
   for (let i = 0; i < messageCount; i++) {
-    const isCurrentUser = i % 3 === 1; // Every 3rd message from current user
+    const isCurrentUser = i % 3 === 1;
     const snippetIndex = (item.id + i) % conversationSnippets.length;
 
     messages.push({
@@ -346,17 +430,15 @@ export function generateConversation(item: InboxItemData): ConversationMessage[]
       content: conversationSnippets[snippetIndex],
       timestamp: times[i % times.length],
       isCurrentUser,
-      isHighlighted: false, // History is never highlighted
+      isHighlighted: false,
       reactions: i === 1 ? [{ emoji: '👍', count: 1 }] : undefined,
     });
   }
 
   // Now add the unread message(s) at the end
-  // count=1 means 1 unread, count=2+ means multiple unread (we'll show 3)
   const unreadMsgCount = item.readState === 'read' ? 0 : (item.count === 1 ? 1 : 3);
 
   if (unreadMsgCount >= 3) {
-    // Add 2 extra unread messages before the final one
     messages.push({
       id: baseId + messageCount,
       senderName: otherName,

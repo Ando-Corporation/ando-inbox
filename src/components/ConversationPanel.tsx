@@ -73,50 +73,83 @@ export function ConversationPanel({ item, messages }: ConversationPanelProps) {
       {/* Messages */}
       <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4">
         {messages.map((message) => (
-          <div
-            key={message.id}
-            className={`flex gap-3 ${message.isHighlighted ? 'bg-amber-50 -mx-4 px-4 py-2' : ''}`}
-          >
-            <img
-              src={message.senderAvatar}
-              alt=""
-              className="w-9 h-9 rounded-full object-cover shrink-0"
-            />
-            <div className="min-w-0 flex-1">
-              <div className="flex items-baseline gap-2">
-                <span className="font-semibold text-sm text-[#292524]">{message.senderName}</span>
-                <span className="text-xs text-[#a8a29e]">{message.timestamp}</span>
-              </div>
-              <p className="text-sm text-[#292524] mt-0.5 whitespace-pre-wrap">
-                {message.isMention ? (
-                  <>
-                    {message.content.split(/(@\w+)/g).map((part, i) =>
-                      part.startsWith('@') ? (
-                        <span key={i} className="bg-blue-100 text-blue-700 px-1 rounded font-medium">
-                          {part}
-                        </span>
-                      ) : (
-                        part
-                      )
-                    )}
-                  </>
-                ) : (
-                  message.content
-                )}
-              </p>
-              {message.reactions && message.reactions.length > 0 && (
-                <div className="flex gap-1 mt-1.5">
-                  {message.reactions.map((reaction, i) => (
-                    <button
-                      key={i}
-                      className="flex items-center gap-1 px-2 py-0.5 bg-[#f5f5f4] hover:bg-[#e7e5e4] rounded-full text-xs transition-colors"
-                    >
-                      <span>{reaction.emoji}</span>
-                      <span className="text-[#57534e]">{reaction.count}</span>
-                    </button>
-                  ))}
+          <div key={message.id}>
+            {/* Regular message */}
+            <div
+              className={`flex gap-3 ${message.isHighlighted ? 'bg-amber-50 -mx-4 px-4 py-2' : ''}`}
+            >
+              <img
+                src={message.senderAvatar}
+                alt=""
+                className="w-9 h-9 rounded-full object-cover shrink-0"
+              />
+              <div className="min-w-0 flex-1">
+                <div className="flex items-baseline gap-2">
+                  <span className="font-semibold text-sm text-[#292524]">{message.senderName}</span>
+                  <span className="text-xs text-[#a8a29e]">{message.timestamp}</span>
                 </div>
-              )}
+                <p className="text-sm text-[#292524] mt-0.5 whitespace-pre-wrap">
+                  {message.isMention ? (
+                    <>
+                      {message.content.split(/(@\w+)/g).map((part, i) =>
+                        part.startsWith('@') ? (
+                          <span key={i} className="bg-blue-100 text-blue-700 px-1 rounded font-medium">
+                            {part}
+                          </span>
+                        ) : (
+                          part
+                        )
+                      )}
+                    </>
+                  ) : (
+                    message.content
+                  )}
+                </p>
+                {message.reactions && message.reactions.length > 0 && (
+                  <div className="flex gap-1 mt-1.5">
+                    {message.reactions.map((reaction, i) => (
+                      <button
+                        key={i}
+                        className="flex items-center gap-1 px-2 py-0.5 bg-[#f5f5f4] hover:bg-[#e7e5e4] rounded-full text-xs transition-colors"
+                      >
+                        <span>{reaction.emoji}</span>
+                        <span className="text-[#57534e]">{reaction.count}</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+
+                {/* Thread replies (Slack style) */}
+                {message.isThreadParent && message.threadReplies && (
+                  <div className="mt-3 border-l-2 border-[#e7e5e4] pl-4 space-y-3">
+                    <div className="flex items-center gap-2 text-xs text-[#3b82f6] font-medium">
+                      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                        <path d="M2 4H12M2 7H9M2 10H6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                      </svg>
+                      {message.threadReplies.length} {message.threadReplies.length === 1 ? 'reply' : 'replies'}
+                    </div>
+                    {message.threadReplies.map((reply) => (
+                      <div
+                        key={reply.id}
+                        className={`flex gap-2.5 ${reply.isHighlighted ? 'bg-amber-50 -ml-4 pl-4 -mr-4 pr-4 py-1.5 border-l-2 border-l-amber-200' : ''}`}
+                      >
+                        <img
+                          src={reply.senderAvatar}
+                          alt=""
+                          className="w-7 h-7 rounded-full object-cover shrink-0"
+                        />
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-baseline gap-2">
+                            <span className="font-semibold text-sm text-[#292524]">{reply.senderName}</span>
+                            <span className="text-xs text-[#a8a29e]">{reply.timestamp}</span>
+                          </div>
+                          <p className="text-sm text-[#292524] mt-0.5">{reply.content}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         ))}

@@ -83,5 +83,7 @@ export interface ConversationMessage {
   isCurrentUser?: boolean;
   isHighlighted?: boolean; // Yellow background for unread messages
   isMention?: boolean; // Message contains an @mention
+  isThreadParent?: boolean; // Original message that has thread replies
+  threadReplies?: ConversationMessage[]; // Nested thread replies
   reactions?: { emoji: string; count: number }[];
 }
