@@ -1,5 +1,5 @@
 import type { InboxItemData } from '../types';
-import { Avatar, AvatarStack, ChannelIcon } from './Avatar';
+import { Avatar, AvatarStack } from './Avatar';
 
 interface InboxItemProps {
   item: InboxItemData;
@@ -81,7 +81,18 @@ export function InboxItem({ item }: InboxItemProps) {
 
   const renderAvatar = () => {
     if (item.location === 'Channel') {
-      return <ChannelIcon size="md" />;
+      // For channels, show the sender's avatar (person who sent the message or @'ed you)
+      return (
+        <div className="relative">
+          <Avatar src={item.avatars[0]} size="md" showOnline={isUnread} />
+          {/* Small channel icon badge */}
+          <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded bg-emerald-500 flex items-center justify-center ring-2 ring-white">
+            <svg width="10" height="10" viewBox="0 0 12 12" fill="none" className="text-white">
+              <path d="M4.5 1.5L3 10.5M9 1.5L7.5 10.5M1.5 4H10.5M1 8H10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+            </svg>
+          </div>
+        </div>
+      );
     }
 
     if (item.location === '1:1 DM') {

@@ -19,6 +19,7 @@ function App() {
   const [filterReadState, setFilterReadState] = useState<FilterReadState>('All');
   const [timeDisplay, setTimeDisplay] = useState<InboxItemData['timeDisplay']>('<1hr');
   const [selectedItem, setSelectedItem] = useState<InboxItemData | null>(null);
+  const [showDevNotes, setShowDevNotes] = useState(true);
 
   const filteredStates = prototypeStates.filter((state) => {
     if (filterLocation !== 'All' && state.location !== filterLocation) return false;
@@ -84,6 +85,65 @@ function App() {
           </div>
         </div>
       </header>
+
+      {/* Dev Notes */}
+      <div className="max-w-7xl mx-auto px-4 mt-4">
+        <div className="bg-blue-50 border border-blue-200 rounded-lg overflow-hidden">
+          <button
+            onClick={() => setShowDevNotes(!showDevNotes)}
+            className="w-full px-4 py-2 flex items-center justify-between text-left hover:bg-blue-100 transition-colors"
+          >
+            <span className="text-sm font-medium text-blue-800">Development Notes</span>
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 16 16"
+              fill="none"
+              className={`text-blue-600 transition-transform ${showDevNotes ? 'rotate-180' : ''}`}
+            >
+              <path d="M4 6L8 10L12 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </button>
+          {showDevNotes && (
+            <div className="px-4 pb-4 text-sm text-blue-900 space-y-3">
+              <div>
+                <h4 className="font-semibold mb-1">Avatar Rules</h4>
+                <ul className="list-disc list-inside space-y-0.5 text-blue-800">
+                  <li><strong>1:1 DM:</strong> Show the other person's avatar</li>
+                  <li><strong>Multi-DM:</strong> Stack of 2 avatars (3+ shows +N badge)</li>
+                  <li><strong>Channel:</strong> Show sender's avatar with small # badge (person who sent message or @'ed you)</li>
+                </ul>
+              </div>
+              <div>
+                <h4 className="font-semibold mb-1">Read State & Count</h4>
+                <ul className="list-disc list-inside space-y-0.5 text-blue-800">
+                  <li><strong>read:</strong> No badge, no highlighted messages in conversation</li>
+                  <li><strong>unread + count=1:</strong> Green dot badge, 1 message highlighted yellow</li>
+                  <li><strong>unread + count=2+:</strong> Green "2+" badge, 3 messages highlighted yellow</li>
+                  <li>Simplified model: "read" means all messages read (no partial-read state like Slack)</li>
+                </ul>
+              </div>
+              <div>
+                <h4 className="font-semibold mb-1">Notification Types</h4>
+                <ul className="list-disc list-inside space-y-0.5 text-blue-800">
+                  <li><strong>message:</strong> Regular message, no special badge on avatar</li>
+                  <li><strong>@mention:</strong> Blue @ badge on avatar, mention styled with blue pill in conversation</li>
+                  <li><strong>thread-reply:</strong> Purple thread badge on avatar, shown as nested thread in conversation</li>
+                </ul>
+              </div>
+              <div>
+                <h4 className="font-semibold mb-1">Conversation Panel</h4>
+                <ul className="list-disc list-inside space-y-0.5 text-blue-800">
+                  <li>Click notification to show conversation on right</li>
+                  <li>Selection indicated by grey left border on row</li>
+                  <li>Selection resets when changing any filter or tab</li>
+                  <li>Thread replies show in Slack-style nested format</li>
+                </ul>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
 
       {/* Main Content - Split View */}
       <main className="max-w-7xl mx-auto py-6 px-4">
