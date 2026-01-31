@@ -135,8 +135,7 @@ function App() {
     notes.push({ label: 'Highlighted Messages', value: highlightedCount });
 
     // Time styling
-    const timeStyle = item.readState === 'unread' ? 'Blue, medium weight' : 'Grey, normal weight';
-    notes.push({ label: 'Time Style', value: timeStyle });
+    notes.push({ label: 'Time Style', value: 'Always grey' });
 
     // Special behaviors
     const specialBehaviors: string[] = [];

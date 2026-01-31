@@ -106,6 +106,11 @@ export function InboxItem({ item, isSelected }: InboxItemProps) {
         hover:bg-[#f5f5f4]
       `}
     >
+      {/* Time - top right */}
+      <span className="absolute top-3 right-3 text-xs text-[#a8a29e]">
+        {formatTime(item.timeDisplay)}
+      </span>
+
       {/* Count badge - right side, vertically centered */}
       {isUnread && item.count && !isSelected && (
         <div className={`
@@ -157,12 +162,6 @@ export function InboxItem({ item, isSelected }: InboxItemProps) {
             )}
           </div>
 
-          {/* Right side: Time */}
-          <div className="flex items-center gap-2 shrink-0">
-            <span className={`text-xs ${isUnread ? 'text-[#3b82f6] font-medium' : 'text-[#a8a29e]'}`}>
-              {formatTime(item.timeDisplay)}
-            </span>
-          </div>
         </div>
 
         {/* Thread original message (for thread replies and @mention-in-thread) */}
