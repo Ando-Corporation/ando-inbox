@@ -98,7 +98,7 @@ export function InboxItem({ item, isSelected }: InboxItemProps) {
   return (
     <div
       className={`
-        flex items-center gap-3 px-4 py-3 cursor-pointer transition-all relative
+        group flex items-center gap-3 px-4 py-3 cursor-pointer transition-all relative
         ${isSelected
           ? 'bg-white ring-2 ring-violet-400 rounded-lg mx-1 my-1'
           : 'bg-white'
@@ -111,18 +111,37 @@ export function InboxItem({ item, isSelected }: InboxItemProps) {
         {formatTime(item.timeDisplay)}
       </span>
 
-      {/* Count badge - right side, vertically centered */}
-      {isUnread && item.count && !isSelected && (
-        <div className={`
-          absolute right-3 top-1/2 -translate-y-1/2 rounded-full flex items-center justify-center
-          ${item.count === 1
-            ? 'w-2.5 h-2.5 bg-emerald-500'
-            : 'min-w-[22px] h-[22px] px-1.5 bg-emerald-500 text-white text-xs font-semibold'
-          }
-        `}>
-          {item.count !== 1 && item.count}
+      {/* Right side actions - count badge + hover buttons */}
+      <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-2">
+        {/* Hover action buttons */}
+        <div className="hidden group-hover:flex items-center gap-1">
+          <button
+            onClick={(e) => { e.stopPropagation(); }}
+            className="px-2 py-1 text-xs font-medium text-[#57534e] bg-white border border-[#e7e5e4] rounded hover:bg-[#f5f5f4] hover:border-[#d6d3d1] transition-colors whitespace-nowrap"
+          >
+            Mark as Read
+          </button>
+          <button
+            onClick={(e) => { e.stopPropagation(); }}
+            className="px-2 py-1 text-xs font-medium text-[#57534e] bg-white border border-[#e7e5e4] rounded hover:bg-[#f5f5f4] hover:border-[#d6d3d1] transition-colors"
+          >
+            Archive
+          </button>
         </div>
-      )}
+
+        {/* Count badge */}
+        {isUnread && item.count && !isSelected && (
+          <div className={`
+            rounded-full flex items-center justify-center
+            ${item.count === 1
+              ? 'w-2.5 h-2.5 bg-emerald-500'
+              : 'min-w-[22px] h-[22px] px-1.5 bg-emerald-500 text-white text-xs font-semibold'
+            }
+          `}>
+            {item.count !== 1 && item.count}
+          </div>
+        )}
+      </div>
 
       {/* Checkbox */}
       <div className="shrink-0">

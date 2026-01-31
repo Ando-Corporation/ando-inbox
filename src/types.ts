@@ -4,9 +4,11 @@ export type NotificationType = 'message' | '@mention' | 'thread-reply' | '@menti
 export type ReadState = 'unread' | 'read';
 export type Count = 1 | '2+' | null;
 export type TimeDisplay = '<1hr' | '<24hr' | '<7d' | '>7d';
+export type NotificationSource = 'Messages' | 'Jams' | 'Invites';
 
 export interface InboxItemData {
   id: number;
+  source: NotificationSource;
   location: Location;
   participantDisplay?: ParticipantDisplay;
   notificationType: NotificationType;
@@ -21,6 +23,15 @@ export interface InboxItemData {
   channelName?: string;
   senderName?: string;
   threadOriginalMessage?: string; // Original message being replied to (for thread-reply type)
+
+  // Jams-specific
+  jamStatus?: 'live' | 'ended' | 'missed' | 'scheduled';
+  jamDuration?: string;
+
+  // Invites-specific
+  inviteType?: 'channel' | 'jam' | 'workspace' | 'document';
+  inviteStatus?: 'pending' | 'accepted' | 'declined' | 'expired';
+  inviteDescription?: string;
 }
 
 export interface PrototypeState {

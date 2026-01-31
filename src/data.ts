@@ -139,6 +139,7 @@ export function generateInboxItem(state: PrototypeState, timeDisplay: InboxItemD
 
   return {
     id: state.id,
+    source: 'Messages',
     location: state.location,
     participantDisplay: state.participantDisplay,
     notificationType: state.notificationType,
@@ -154,6 +155,57 @@ export function generateInboxItem(state: PrototypeState, timeDisplay: InboxItemD
       ? threadOriginalMessages[state.id % threadOriginalMessages.length]
       : undefined,
   };
+}
+
+// Convert Jams to InboxItemData format
+export function generateJamInboxItems(): InboxItemData[] {
+  return jamItems.map((jam): InboxItemData => {
+    const notifText = {
+      'started': 'started a Jam',
+      'joined': 'joined your Jam',
+      'mentioned': 'mentioned you in a Jam',
+      'recording-ready': 'Recording ready',
+      'reminder': 'Jam reminder',
+    }[jam.notificationType];
+
+    return {
+      id: 1000 + jam.id,
+      source: 'Jams',
+      location: 'Channel',
+      notificationType: 'message',
+      readState: jam.readState,
+      count: jam.readState === 'unread' ? 1 : null,
+      timeDisplay: jam.timeDisplay,
+      title: jam.title,
+      preview: `${jam.hostName} ${notifText}${jam.duration ? ` · ${jam.duration}` : ''}`,
+      avatars: [jam.hostAvatar],
+      channelName: jam.channelName,
+      jamStatus: jam.status,
+      jamDuration: jam.duration,
+    };
+  });
+}
+
+// Convert Invites to InboxItemData format
+export function generateInviteInboxItems(): InboxItemData[] {
+  const allInvites = [...inviteItems, ...jamInviteItems];
+  return allInvites.map((invite): InboxItemData => {
+    return {
+      id: 2000 + invite.id,
+      source: 'Invites',
+      location: 'Channel',
+      notificationType: 'message',
+      readState: invite.status === 'pending' ? 'unread' : 'read',
+      count: invite.status === 'pending' ? 1 : null,
+      timeDisplay: invite.timeDisplay,
+      title: invite.title,
+      preview: `${invite.inviterName} invited you · ${invite.description}`,
+      avatars: [invite.inviterAvatar],
+      inviteType: invite.inviteType,
+      inviteStatus: invite.status,
+      inviteDescription: invite.description,
+    };
+  });
 }
 
 // Jams sample data
