@@ -330,22 +330,14 @@ export function generateConversation(item: InboxItemData): ConversationMessage[]
   const messages: ConversationMessage[] = [];
   const baseId = item.id * 100;
 
-  // Generate 6-10 messages
+  // Generate 6-10 messages (these are all "read" history)
   const messageCount = 6 + (item.id % 5);
   const times = ['9:19 AM', '10:02 AM', '10:23 AM', '12:09 PM', '12:21 PM', '12:25 PM', '12:30 PM', '12:45 PM', '1:02 PM', '1:15 PM'];
 
-  // Determine how many messages should be highlighted (unread)
-  // read = no highlights, unread with count=1 = 1 highlight, unread with count=2+ = 3 highlights
-  const unreadCount = item.readState === 'read' ? 0 : (item.count === 1 ? 1 : 3);
-
+  // Build the conversation history (all read messages)
   for (let i = 0; i < messageCount; i++) {
     const isCurrentUser = i % 3 === 1; // Every 3rd message from current user
     const snippetIndex = (item.id + i) % conversationSnippets.length;
-
-    // Messages from the end should be highlighted based on unread count
-    // But only messages from others (not current user) are "unread"
-    const distanceFromEnd = messageCount - i;
-    const isUnreadMessage = !isCurrentUser && distanceFromEnd <= unreadCount + 1 && item.readState === 'unread';
 
     messages.push({
       id: baseId + i,
@@ -354,33 +346,57 @@ export function generateConversation(item: InboxItemData): ConversationMessage[]
       content: conversationSnippets[snippetIndex],
       timestamp: times[i % times.length],
       isCurrentUser,
-      isHighlighted: isUnreadMessage,
+      isHighlighted: false, // History is never highlighted
       reactions: i === 1 ? [{ emoji: '👍', count: 1 }] : undefined,
     });
   }
 
-  // Add the final message(s) based on notification type
-  if (item.notificationType === '@mention') {
-    // For @mentions, the last message contains the mention
-    const mentionContent = mentionSnippets[item.id % mentionSnippets.length];
+  // Now add the unread message(s) at the end
+  // count=1 means 1 unread, count=2+ means multiple unread (we'll show 3)
+  const unreadMsgCount = item.readState === 'read' ? 0 : (item.count === 1 ? 1 : 3);
+
+  if (unreadMsgCount >= 3) {
+    // Add 2 extra unread messages before the final one
     messages.push({
       id: baseId + messageCount,
       senderName: otherName,
       senderAvatar: otherAvatar,
+      content: conversationSnippets[(item.id + messageCount) % conversationSnippets.length],
+      timestamp: times[(messageCount) % times.length],
+      isCurrentUser: false,
+      isHighlighted: true,
+    });
+    messages.push({
+      id: baseId + messageCount + 1,
+      senderName: otherName,
+      senderAvatar: otherAvatar,
+      content: conversationSnippets[(item.id + messageCount + 1) % conversationSnippets.length],
+      timestamp: times[(messageCount + 1) % times.length],
+      isCurrentUser: false,
+      isHighlighted: true,
+    });
+  }
+
+  // Add the final message based on notification type
+  if (item.notificationType === '@mention') {
+    const mentionContent = mentionSnippets[item.id % mentionSnippets.length];
+    messages.push({
+      id: baseId + messageCount + 10,
+      senderName: otherName,
+      senderAvatar: otherAvatar,
       content: mentionContent,
-      timestamp: times[messageCount % times.length],
+      timestamp: times[(messageCount + 2) % times.length],
       isCurrentUser: false,
       isHighlighted: item.readState === 'unread',
       isMention: true,
     });
   } else {
-    // Regular message or thread reply
     messages.push({
-      id: baseId + messageCount,
+      id: baseId + messageCount + 10,
       senderName: otherName,
       senderAvatar: otherAvatar,
       content: item.preview,
-      timestamp: times[messageCount % times.length],
+      timestamp: times[(messageCount + 2) % times.length],
       isCurrentUser: false,
       isHighlighted: item.readState === 'unread',
     });
