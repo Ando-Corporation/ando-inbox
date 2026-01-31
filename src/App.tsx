@@ -122,8 +122,8 @@ function App() {
       highlightedCount = '0 (read state = no highlights)';
     } else if (item.count === 1) {
       highlightedCount = '1 message highlighted yellow';
-    } else if (item.count === '2+') {
-      highlightedCount = '3 messages highlighted yellow';
+    } else if (item.count && item.count > 1) {
+      highlightedCount = `${item.count} messages highlighted yellow`;
     } else {
       highlightedCount = '0';
     }
