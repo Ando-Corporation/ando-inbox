@@ -30,7 +30,7 @@ export interface InboxItemData {
   jamThreadContext?: string;
 
   // Invites-specific
-  inviteType?: 'channel' | 'workspace' | 'document';
+  inviteType?: 'channel' | 'group-dm';
   inviteDescription?: string;
   isPrivateChannel?: boolean;
 }
@@ -69,7 +69,7 @@ export interface JamItemData {
 }
 
 // Invites types
-export type InviteType = 'channel' | 'workspace' | 'document';
+export type InviteType = 'channel' | 'group-dm';
 
 export interface InviteItemData {
   id: number;

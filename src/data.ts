@@ -207,21 +207,18 @@ export function generateJamInboxItems(): InboxItemData[] {
 // Convert Invites to InboxItemData format
 export function generateInviteInboxItems(): InboxItemData[] {
   return inviteItems.map((invite): InboxItemData => {
-    // Channel invites: just "XYZ invited you", other invites include description
-    const preview = invite.inviteType === 'channel'
-      ? `${invite.inviterName} invited you`
-      : `${invite.inviterName} invited you · ${invite.description}`;
+    const location: Location = invite.inviteType === 'group-dm' ? 'Multi-DM' : 'Channel';
 
     return {
       id: 2000 + invite.id,
       source: 'Invites',
-      location: 'Channel',
+      location,
       notificationType: 'message',
       readState: invite.readState,
       count: invite.readState === 'unread' ? 1 : null,
       timeDisplay: invite.timeDisplay,
       title: invite.title,
-      preview,
+      preview: `${invite.inviterName} invited you`,
       avatars: [invite.inviterAvatar],
       inviteType: invite.inviteType,
       inviteDescription: invite.description,
@@ -344,7 +341,7 @@ export const jamItems: JamItemData[] = [
   },
 ];
 
-// Invites sample data - just read/unread states
+// Invites sample data - Channel and Group DM invites with read/unread states
 export const inviteItems: InviteItemData[] = [
   // Private channel invite - unread
   {
@@ -353,66 +350,90 @@ export const inviteItems: InviteItemData[] = [
     readState: 'unread',
     timeDisplay: '<1hr',
     title: 'backend-team',
-    description: 'Private channel for backend engineers',
+    description: '',
     inviterName: 'Ryan Haraki',
     inviterAvatar: avatars[0],
     isPrivate: true,
   },
-  // Public channel invite - read
+  // Public channel invite - unread
   {
     id: 2,
     inviteType: 'channel',
-    readState: 'read',
-    timeDisplay: '<7d',
+    readState: 'unread',
+    timeDisplay: '<24hr',
     title: 'announcements',
-    description: 'Company-wide announcements',
+    description: '',
     inviterName: 'AJ Martinez',
     inviterAvatar: avatars[5],
     isPrivate: false,
   },
-  // Workspace invite - unread
+  // Private channel invite - read
   {
     id: 3,
-    inviteType: 'workspace',
-    readState: 'unread',
-    timeDisplay: '<24hr',
-    title: 'Acme Corp',
-    description: 'Join the Acme Corp workspace',
-    inviterName: 'Jordan Ramos',
-    inviterAvatar: avatars[2],
+    inviteType: 'channel',
+    readState: 'read',
+    timeDisplay: '<7d',
+    title: 'engineering-leads',
+    description: '',
+    inviterName: 'Peter Choi',
+    inviterAvatar: avatars[1],
+    isPrivate: true,
   },
-  // Workspace invite - read
+  // Public channel invite - read
   {
     id: 4,
-    inviteType: 'workspace',
+    inviteType: 'channel',
     readState: 'read',
     timeDisplay: '>7d',
-    title: 'Design Partners',
-    description: 'External design collaboration workspace',
-    inviterName: 'Oli Wilson',
-    inviterAvatar: avatars[4],
+    title: 'general',
+    description: '',
+    inviterName: 'Jordan Ramos',
+    inviterAvatar: avatars[2],
+    isPrivate: false,
   },
-  // Document invite - unread
+  // Group DM invite - unread
   {
     id: 5,
-    inviteType: 'document',
+    inviteType: 'group-dm',
     readState: 'unread',
     timeDisplay: '<1hr',
-    title: 'Q1 Roadmap',
-    description: 'Shared document access',
+    title: 'Ryan, Peter, Jordan',
+    description: '',
+    inviterName: 'Ryan Haraki',
+    inviterAvatar: avatars[0],
+  },
+  // Group DM invite - unread
+  {
+    id: 6,
+    inviteType: 'group-dm',
+    readState: 'unread',
+    timeDisplay: '<24hr',
+    title: 'AJ, Oli',
+    description: '',
+    inviterName: 'AJ Martinez',
+    inviterAvatar: avatars[5],
+  },
+  // Group DM invite - read
+  {
+    id: 7,
+    inviteType: 'group-dm',
+    readState: 'read',
+    timeDisplay: '<7d',
+    title: 'Peter, Jordan, Oli',
+    description: '',
     inviterName: 'Peter Choi',
     inviterAvatar: avatars[1],
   },
-  // Document invite - read
+  // Group DM invite - read
   {
-    id: 6,
-    inviteType: 'document',
+    id: 8,
+    inviteType: 'group-dm',
     readState: 'read',
-    timeDisplay: '<24hr',
-    title: 'Brand Guidelines',
-    description: 'Design system documentation',
-    inviterName: 'Jordan Ramos',
-    inviterAvatar: avatars[2],
+    timeDisplay: '>7d',
+    title: 'Ryan, AJ',
+    description: '',
+    inviterName: 'Ryan Haraki',
+    inviterAvatar: avatars[0],
   },
 ];
 

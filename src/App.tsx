@@ -2,19 +2,21 @@ import { useState } from 'react';
 import { InboxItem } from './components/InboxItem';
 import { ConversationPanel } from './components/ConversationPanel';
 import { prototypeStates, generateInboxItem, generateConversation, generateJamInboxItems, generateInviteInboxItems } from './data';
-import type { InboxItemData, Location, NotificationType, ReadState, NotificationSource } from './types';
+import type { InboxItemData, Location, NotificationType, ReadState, NotificationSource, InviteType } from './types';
 import './App.css';
 
 type FilterLocation = Location | 'All';
 type FilterNotification = NotificationType | 'All';
 type FilterReadState = ReadState | 'All';
 type FilterSource = NotificationSource | 'All';
+type FilterInviteType = InviteType | 'All';
 
 function App() {
   const [filterLocation, setFilterLocation] = useState<FilterLocation>('All');
   const [filterNotification, setFilterNotification] = useState<FilterNotification>('All');
   const [filterReadState, setFilterReadState] = useState<FilterReadState>('All');
   const [filterSource, setFilterSource] = useState<FilterSource>('All');
+  const [filterInviteType, setFilterInviteType] = useState<FilterInviteType>('All');
   const [timeDisplay, setTimeDisplay] = useState<InboxItemData['timeDisplay']>('<1hr');
   const [selectedItem, setSelectedItem] = useState<InboxItemData | null>(null);
 
@@ -29,11 +31,19 @@ function App() {
   // Apply filters
   const inboxItems = allItems.filter((item) => {
     if (filterSource !== 'All' && item.source !== filterSource) return false;
+    // Messages-specific filters (Location and Notification Type)
     if (filterSource === 'All' || filterSource === 'Messages') {
       if (filterLocation !== 'All' && item.location !== filterLocation) return false;
       if (filterNotification !== 'All' && item.notificationType !== filterNotification) return false;
     }
-    if (filterReadState !== 'All' && item.readState !== filterReadState) return false;
+    // Invites-specific filter (Channel vs Group DM)
+    if (filterSource === 'Invites' && filterInviteType !== 'All') {
+      if (item.inviteType !== filterInviteType) return false;
+    }
+    // Read state filter only for Messages (not Jams or Invites)
+    if (filterSource === 'Messages' || filterSource === 'All') {
+      if (filterReadState !== 'All' && item.readState !== filterReadState) return false;
+    }
     return true;
   });
 
@@ -248,53 +258,83 @@ function App() {
                     </div>
                   )}
 
-                  {/* Read State Filter */}
-                  <div>
-                    <label className="block text-[10px] font-medium text-[#78716c] uppercase tracking-wide mb-1">
-                      State
-                    </label>
-                    <div className="flex gap-1">
-                      {(['All', 'unread', 'read'] as FilterReadState[]).map((state) => (
-                        <button
-                          key={state}
-                          onClick={() => { setFilterReadState(state); setSelectedItem(null); }}
-                          className={`
-                            px-2.5 py-1 text-xs rounded-md transition-colors
-                            ${filterReadState === state
-                              ? 'bg-[#292524] text-white'
-                              : 'bg-white text-[#57534e] border border-[#e7e5e4] hover:bg-[#f5f5f4]'
-                            }
-                          `}
-                        >
-                          {state}
-                        </button>
-                      ))}
+                  {/* Invite Type Filter (only for Invites) */}
+                  {filterSource === 'Invites' && (
+                    <div>
+                      <label className="block text-[10px] font-medium text-[#78716c] uppercase tracking-wide mb-1">
+                        Type
+                      </label>
+                      <div className="flex gap-1">
+                        {(['All', 'channel', 'group-dm'] as FilterInviteType[]).map((type) => (
+                          <button
+                            key={type}
+                            onClick={() => { setFilterInviteType(type); setSelectedItem(null); }}
+                            className={`
+                              px-2.5 py-1 text-xs rounded-md transition-colors
+                              ${filterInviteType === type
+                                ? 'bg-[#292524] text-white'
+                                : 'bg-white text-[#57534e] border border-[#e7e5e4] hover:bg-[#f5f5f4]'
+                              }
+                            `}
+                          >
+                            {type === 'group-dm' ? 'Group DM' : type === 'channel' ? 'Channel' : 'All'}
+                          </button>
+                        ))}
+                      </div>
                     </div>
-                  </div>
+                  )}
 
-                  {/* Time Display */}
-                  <div>
-                    <label className="block text-[10px] font-medium text-[#78716c] uppercase tracking-wide mb-1">
-                      Time
-                    </label>
-                    <div className="flex gap-1">
-                      {(['<1hr', '<24hr', '<7d', '>7d'] as InboxItemData['timeDisplay'][]).map((time) => (
-                        <button
-                          key={time}
-                          onClick={() => { setTimeDisplay(time); setSelectedItem(null); }}
-                          className={`
-                            px-2.5 py-1 text-xs rounded-md transition-colors
-                            ${timeDisplay === time
-                              ? 'bg-[#292524] text-white'
-                              : 'bg-white text-[#57534e] border border-[#e7e5e4] hover:bg-[#f5f5f4]'
-                            }
-                          `}
-                        >
-                          {time}
-                        </button>
-                      ))}
+                  {/* Read State Filter (only for Messages) */}
+                  {(filterSource === 'All' || filterSource === 'Messages') && (
+                    <div>
+                      <label className="block text-[10px] font-medium text-[#78716c] uppercase tracking-wide mb-1">
+                        State
+                      </label>
+                      <div className="flex gap-1">
+                        {(['All', 'unread', 'read'] as FilterReadState[]).map((state) => (
+                          <button
+                            key={state}
+                            onClick={() => { setFilterReadState(state); setSelectedItem(null); }}
+                            className={`
+                              px-2.5 py-1 text-xs rounded-md transition-colors
+                              ${filterReadState === state
+                                ? 'bg-[#292524] text-white'
+                                : 'bg-white text-[#57534e] border border-[#e7e5e4] hover:bg-[#f5f5f4]'
+                              }
+                            `}
+                          >
+                            {state}
+                          </button>
+                        ))}
+                      </div>
                     </div>
-                  </div>
+                  )}
+
+                  {/* Time Display (only for Messages) */}
+                  {(filterSource === 'All' || filterSource === 'Messages') && (
+                    <div>
+                      <label className="block text-[10px] font-medium text-[#78716c] uppercase tracking-wide mb-1">
+                        Time
+                      </label>
+                      <div className="flex gap-1">
+                        {(['<1hr', '<24hr', '<7d', '>7d'] as InboxItemData['timeDisplay'][]).map((time) => (
+                          <button
+                            key={time}
+                            onClick={() => { setTimeDisplay(time); setSelectedItem(null); }}
+                            className={`
+                              px-2.5 py-1 text-xs rounded-md transition-colors
+                              ${timeDisplay === time
+                                ? 'bg-[#292524] text-white'
+                                : 'bg-white text-[#57534e] border border-[#e7e5e4] hover:bg-[#f5f5f4]'
+                              }
+                            `}
+                          >
+                            {time}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
 
