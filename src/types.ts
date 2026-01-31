@@ -25,12 +25,12 @@ export interface InboxItemData {
   threadOriginalMessage?: string; // Original message being replied to (for thread-reply type)
 
   // Jams-specific
-  jamStatus?: 'live' | 'ended' | 'missed' | 'scheduled';
+  jamNotificationType?: JamNotificationType;
   jamDuration?: string;
+  jamThreadContext?: string;
 
   // Invites-specific
-  inviteType?: 'channel' | 'jam' | 'workspace' | 'document';
-  inviteStatus?: 'pending' | 'accepted' | 'declined' | 'expired';
+  inviteType?: 'channel' | 'workspace' | 'document';
   inviteDescription?: string;
 }
 
@@ -45,34 +45,35 @@ export interface PrototypeState {
 }
 
 // Jams types
-export type JamStatus = 'live' | 'ended' | 'missed' | 'scheduled';
-export type JamNotificationType = 'started' | 'joined' | 'mentioned' | 'recording-ready' | 'reminder';
+export type JamNotificationType =
+  | 'channel-started'    // Jam started in a channel you're in
+  | 'thread-started'     // Jam started in a thread you're inside of
+  | 'transcript-ready'   // Jam ended and transcript is ready
+  | 'invited-dm'         // Someone invited you to jam 1-1
+  | 'invited-group';     // Someone invited you to jam in group DM
 
 export interface JamItemData {
   id: number;
-  status: JamStatus;
   notificationType: JamNotificationType;
   readState: ReadState;
   timeDisplay: TimeDisplay;
 
   // Display data
   title: string;
-  hostName: string;
-  hostAvatar: string;
-  participantCount?: number;
-  participantAvatars?: string[];
+  starterName: string;
+  starterAvatar: string;
   channelName?: string;
-  duration?: string;
+  threadContext?: string; // Original thread message for thread-started
+  duration?: string;      // For transcript-ready
 }
 
 // Invites types
-export type InviteType = 'channel' | 'jam' | 'workspace' | 'document';
-export type InviteStatus = 'pending' | 'accepted' | 'declined' | 'expired';
+export type InviteType = 'channel' | 'workspace' | 'document';
 
 export interface InviteItemData {
   id: number;
   inviteType: InviteType;
-  status: InviteStatus;
+  readState: ReadState;
   timeDisplay: TimeDisplay;
 
   // Display data
@@ -80,7 +81,6 @@ export interface InviteItemData {
   description: string;
   inviterName: string;
   inviterAvatar: string;
-  channelName?: string;
   isPrivate?: boolean;
 }
 

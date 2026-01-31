@@ -1,4 +1,4 @@
-import type { InboxItemData, PrototypeState, JamItemData, InviteItemData, ConversationMessage } from './types';
+import type { InboxItemData, PrototypeState, JamItemData, InviteItemData, ConversationMessage, Location } from './types';
 
 // Sample avatar URLs using DiceBear
 const avatars = [
@@ -160,183 +160,191 @@ export function generateInboxItem(state: PrototypeState, timeDisplay: InboxItemD
 // Convert Jams to InboxItemData format
 export function generateJamInboxItems(): InboxItemData[] {
   return jamItems.map((jam): InboxItemData => {
-    const notifText = {
-      'started': 'started a Jam',
-      'joined': 'joined your Jam',
-      'mentioned': 'mentioned you in a Jam',
-      'recording-ready': 'Recording ready',
-      'reminder': 'Jam reminder',
-    }[jam.notificationType];
+    // Generate preview text based on notification type
+    let preview = '';
+    let location: Location = 'Channel';
+
+    switch (jam.notificationType) {
+      case 'channel-started':
+        preview = `${jam.starterName} started a Jam in #${jam.channelName}`;
+        break;
+      case 'thread-started':
+        preview = `${jam.starterName} started a Jam in thread`;
+        break;
+      case 'transcript-ready':
+        preview = `Transcript ready · ${jam.duration}`;
+        break;
+      case 'invited-dm':
+        preview = `${jam.starterName} invited you to Jam`;
+        location = '1:1 DM';
+        break;
+      case 'invited-group':
+        preview = `${jam.starterName} invited you to Jam`;
+        location = 'Multi-DM';
+        break;
+    }
 
     return {
       id: 1000 + jam.id,
       source: 'Jams',
-      location: 'Channel',
+      location,
       notificationType: 'message',
       readState: jam.readState,
       count: jam.readState === 'unread' ? 1 : null,
       timeDisplay: jam.timeDisplay,
       title: jam.title,
-      preview: `${jam.hostName} ${notifText}${jam.duration ? ` · ${jam.duration}` : ''}`,
-      avatars: [jam.hostAvatar],
+      preview,
+      avatars: [jam.starterAvatar],
       channelName: jam.channelName,
-      jamStatus: jam.status,
+      jamNotificationType: jam.notificationType,
       jamDuration: jam.duration,
+      jamThreadContext: jam.threadContext,
+      threadOriginalMessage: jam.threadContext, // Show thread context like thread replies
     };
   });
 }
 
 // Convert Invites to InboxItemData format
 export function generateInviteInboxItems(): InboxItemData[] {
-  const allInvites = [...inviteItems, ...jamInviteItems];
-  return allInvites.map((invite): InboxItemData => {
+  return inviteItems.map((invite): InboxItemData => {
     return {
       id: 2000 + invite.id,
       source: 'Invites',
       location: 'Channel',
       notificationType: 'message',
-      readState: invite.status === 'pending' ? 'unread' : 'read',
-      count: invite.status === 'pending' ? 1 : null,
+      readState: invite.readState,
+      count: invite.readState === 'unread' ? 1 : null,
       timeDisplay: invite.timeDisplay,
       title: invite.title,
       preview: `${invite.inviterName} invited you · ${invite.description}`,
       avatars: [invite.inviterAvatar],
       inviteType: invite.inviteType,
-      inviteStatus: invite.status,
       inviteDescription: invite.description,
     };
   });
 }
 
-// Jams sample data
+// Jams sample data - 4 notification types with read/unread states
 export const jamItems: JamItemData[] = [
+  // Channel started - unread
   {
     id: 1,
-    status: 'live',
-    notificationType: 'started',
+    notificationType: 'channel-started',
     readState: 'unread',
     timeDisplay: '<1hr',
     title: 'Sprint Planning',
-    hostName: 'Sara Du',
-    hostAvatar: avatars[3],
-    participantCount: 5,
-    participantAvatars: [avatars[0], avatars[1], avatars[2], avatars[4]],
+    starterName: 'Ryan Haraki',
+    starterAvatar: avatars[0],
     channelName: 'engineering',
   },
+  // Channel started - read
   {
     id: 2,
-    status: 'live',
-    notificationType: 'mentioned',
-    readState: 'unread',
-    timeDisplay: '<1hr',
+    notificationType: 'channel-started',
+    readState: 'read',
+    timeDisplay: '<7d',
     title: 'Design Review',
-    hostName: 'Jordan Ramos',
-    hostAvatar: avatars[2],
-    participantCount: 3,
-    participantAvatars: [avatars[3], avatars[5]],
+    starterName: 'Jordan Ramos',
+    starterAvatar: avatars[2],
     channelName: 'design',
   },
+  // Thread started - unread
   {
     id: 3,
-    status: 'ended',
-    notificationType: 'recording-ready',
+    notificationType: 'thread-started',
+    readState: 'unread',
+    timeDisplay: '<1hr',
+    title: 'API Discussion',
+    starterName: 'Peter Choi',
+    starterAvatar: avatars[1],
+    channelName: 'engineering',
+    threadContext: 'Can someone help with the auth flow?',
+  },
+  // Thread started - read
+  {
+    id: 4,
+    notificationType: 'thread-started',
+    readState: 'read',
+    timeDisplay: '<24hr',
+    title: 'Bug Triage',
+    starterName: 'AJ Martinez',
+    starterAvatar: avatars[5],
+    channelName: 'support',
+    threadContext: 'Customer reported login issues',
+  },
+  // Transcript ready - unread
+  {
+    id: 5,
+    notificationType: 'transcript-ready',
     readState: 'unread',
     timeDisplay: '<24hr',
     title: 'Product Sync',
-    hostName: 'Peter Choi',
-    hostAvatar: avatars[1],
-    duration: '32m',
+    starterName: 'Peter Choi',
+    starterAvatar: avatars[1],
     channelName: 'product',
+    duration: '32m',
   },
-  {
-    id: 4,
-    status: 'missed',
-    notificationType: 'started',
-    readState: 'unread',
-    timeDisplay: '<24hr',
-    title: 'Quick Standup',
-    hostName: 'Ryan Haraki',
-    hostAvatar: avatars[0],
-    participantCount: 4,
-    participantAvatars: [avatars[1], avatars[2], avatars[3]],
-  },
-  {
-    id: 5,
-    status: 'scheduled',
-    notificationType: 'reminder',
-    readState: 'unread',
-    timeDisplay: '<1hr',
-    title: 'Team Retro',
-    hostName: 'Oli Wilson',
-    hostAvatar: avatars[4],
-    channelName: 'general',
-  },
+  // Transcript ready - read
   {
     id: 6,
-    status: 'ended',
-    notificationType: 'joined',
+    notificationType: 'transcript-ready',
     readState: 'read',
-    timeDisplay: '<7d',
-    title: 'API Discussion',
-    hostName: 'AJ Martinez',
-    hostAvatar: avatars[5],
+    timeDisplay: '>7d',
+    title: 'Team Retro',
+    starterName: 'Oli Wilson',
+    starterAvatar: avatars[4],
+    channelName: 'general',
     duration: '45m',
-    participantAvatars: [avatars[0], avatars[1]],
   },
+  // Invited to 1-1 Jam - unread
   {
     id: 7,
-    status: 'ended',
-    notificationType: 'mentioned',
-    readState: 'read',
-    timeDisplay: '>7d',
-    title: 'Feature Brainstorm',
-    hostName: 'Sara Du',
-    hostAvatar: avatars[3],
-    duration: '1h 15m',
-    channelName: 'product',
+    notificationType: 'invited-dm',
+    readState: 'unread',
+    timeDisplay: '<1hr',
+    title: 'Quick chat?',
+    starterName: 'Jordan Ramos',
+    starterAvatar: avatars[2],
   },
-];
-
-// Jam invites (shown in Jams tab)
-export const jamInviteItems: InviteItemData[] = [
+  // Invited to 1-1 Jam - read
   {
-    id: 101,
-    inviteType: 'jam',
-    status: 'pending',
+    id: 8,
+    notificationType: 'invited-dm',
+    readState: 'read',
+    timeDisplay: '<7d',
+    title: 'Catch up',
+    starterName: 'Ryan Haraki',
+    starterAvatar: avatars[0],
+  },
+  // Invited to group Jam - unread
+  {
+    id: 9,
+    notificationType: 'invited-group',
+    readState: 'unread',
     timeDisplay: '<1hr',
     title: 'Architecture Review',
-    description: 'Discussing the new microservices approach',
-    inviterName: 'Peter Choi',
-    inviterAvatar: avatars[1],
+    starterName: 'Peter Choi',
+    starterAvatar: avatars[1],
   },
+  // Invited to group Jam - read
   {
-    id: 102,
-    inviteType: 'jam',
-    status: 'pending',
+    id: 10,
+    notificationType: 'invited-group',
+    readState: 'read',
     timeDisplay: '<24hr',
-    title: 'Design Sync',
-    description: 'Weekly design team sync',
-    inviterName: 'Jordan Ramos',
-    inviterAvatar: avatars[2],
-  },
-  {
-    id: 103,
-    inviteType: 'jam',
-    status: 'declined',
-    timeDisplay: '>7d',
-    title: 'Coffee Chat',
-    description: 'Casual catch-up session',
-    inviterName: 'Ryan Haraki',
-    inviterAvatar: avatars[0],
+    title: 'Feature Planning',
+    starterName: 'AJ Martinez',
+    starterAvatar: avatars[5],
   },
 ];
 
-// Invites sample data (excludes jam invites)
+// Invites sample data - just read/unread states
 export const inviteItems: InviteItemData[] = [
+  // Channel invite - unread
   {
     id: 1,
     inviteType: 'channel',
-    status: 'pending',
+    readState: 'unread',
     timeDisplay: '<1hr',
     title: '#backend-team',
     description: 'Private channel for backend engineers',
@@ -344,25 +352,60 @@ export const inviteItems: InviteItemData[] = [
     inviterAvatar: avatars[0],
     isPrivate: true,
   },
+  // Channel invite - read
   {
-    id: 6,
+    id: 2,
     inviteType: 'channel',
-    status: 'accepted',
+    readState: 'read',
     timeDisplay: '<7d',
     title: '#announcements',
     description: 'Company-wide announcements',
     inviterName: 'AJ Martinez',
     inviterAvatar: avatars[5],
   },
+  // Workspace invite - unread
   {
-    id: 8,
-    inviteType: 'channel',
-    status: 'expired',
+    id: 3,
+    inviteType: 'workspace',
+    readState: 'unread',
+    timeDisplay: '<24hr',
+    title: 'Acme Corp',
+    description: 'Join the Acme Corp workspace',
+    inviterName: 'Jordan Ramos',
+    inviterAvatar: avatars[2],
+  },
+  // Workspace invite - read
+  {
+    id: 4,
+    inviteType: 'workspace',
+    readState: 'read',
     timeDisplay: '>7d',
-    title: '#temp-project',
-    description: 'Temporary project channel',
+    title: 'Design Partners',
+    description: 'External design collaboration workspace',
+    inviterName: 'Oli Wilson',
+    inviterAvatar: avatars[4],
+  },
+  // Document invite - unread
+  {
+    id: 5,
+    inviteType: 'document',
+    readState: 'unread',
+    timeDisplay: '<1hr',
+    title: 'Q1 Roadmap',
+    description: 'Shared document access',
     inviterName: 'Peter Choi',
     inviterAvatar: avatars[1],
+  },
+  // Document invite - read
+  {
+    id: 6,
+    inviteType: 'document',
+    readState: 'read',
+    timeDisplay: '<24hr',
+    title: 'Brand Guidelines',
+    description: 'Design system documentation',
+    inviterName: 'Jordan Ramos',
+    inviterAvatar: avatars[2],
   },
 ];
 
