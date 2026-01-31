@@ -207,6 +207,11 @@ export function generateJamInboxItems(): InboxItemData[] {
 // Convert Invites to InboxItemData format
 export function generateInviteInboxItems(): InboxItemData[] {
   return inviteItems.map((invite): InboxItemData => {
+    // Channel invites: just "XYZ invited you", other invites include description
+    const preview = invite.inviteType === 'channel'
+      ? `${invite.inviterName} invited you`
+      : `${invite.inviterName} invited you · ${invite.description}`;
+
     return {
       id: 2000 + invite.id,
       source: 'Invites',
@@ -216,10 +221,11 @@ export function generateInviteInboxItems(): InboxItemData[] {
       count: invite.readState === 'unread' ? 1 : null,
       timeDisplay: invite.timeDisplay,
       title: invite.title,
-      preview: `${invite.inviterName} invited you · ${invite.description}`,
+      preview,
       avatars: [invite.inviterAvatar],
       inviteType: invite.inviteType,
       inviteDescription: invite.description,
+      isPrivateChannel: invite.isPrivate,
     };
   });
 }
@@ -340,28 +346,29 @@ export const jamItems: JamItemData[] = [
 
 // Invites sample data - just read/unread states
 export const inviteItems: InviteItemData[] = [
-  // Channel invite - unread
+  // Private channel invite - unread
   {
     id: 1,
     inviteType: 'channel',
     readState: 'unread',
     timeDisplay: '<1hr',
-    title: '#backend-team',
+    title: 'backend-team',
     description: 'Private channel for backend engineers',
     inviterName: 'Ryan Haraki',
     inviterAvatar: avatars[0],
     isPrivate: true,
   },
-  // Channel invite - read
+  // Public channel invite - read
   {
     id: 2,
     inviteType: 'channel',
     readState: 'read',
     timeDisplay: '<7d',
-    title: '#announcements',
+    title: 'announcements',
     description: 'Company-wide announcements',
     inviterName: 'AJ Martinez',
     inviterAvatar: avatars[5],
+    isPrivate: false,
   },
   // Workspace invite - unread
   {

@@ -32,6 +32,7 @@ export interface InboxItemData {
   // Invites-specific
   inviteType?: 'channel' | 'workspace' | 'document';
   inviteDescription?: string;
+  isPrivateChannel?: boolean;
 }
 
 export interface PrototypeState {

@@ -28,6 +28,15 @@ function HashtagIcon() {
   );
 }
 
+function LockIcon() {
+  return (
+    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" className="shrink-0">
+      <rect x="2" y="5" width="8" height="6" rx="1" stroke="currentColor" strokeWidth="1.2"/>
+      <path d="M4 5V3.5C4 2.39543 4.89543 1.5 6 1.5C7.10457 1.5 8 2.39543 8 3.5V5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
+    </svg>
+  );
+}
+
 function getEventTypeLabel(item: InboxItemData): { icon: React.ReactNode; text: string; channel?: string } {
   const { location, channelName } = item;
 
@@ -161,6 +170,12 @@ export function InboxItem({ item, isSelected }: InboxItemProps) {
         {/* Top row: Event type or Name + Time */}
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-1.5 min-w-0">
+            {/* Channel invite icon: lock for private, hash for public */}
+            {item.inviteType === 'channel' && (
+              <span className="text-[#78716c] shrink-0">
+                {item.isPrivateChannel ? <LockIcon /> : <HashtagIcon />}
+              </span>
+            )}
             {/* Sender/Title */}
             <span className={`truncate ${isUnread ? 'font-semibold text-[#292524]' : 'font-medium text-[#57534e]'}`}>
               {item.title}
