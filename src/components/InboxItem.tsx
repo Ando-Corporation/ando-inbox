@@ -85,15 +85,8 @@ export function InboxItem({ item, isSelected }: InboxItemProps) {
         );
       }
 
-      // 1:1 DM icon
-      return (
-        <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded bg-[#78716c] flex items-center justify-center ring-2 ring-white">
-          <svg width="10" height="10" viewBox="0 0 16 16" fill="none" className="text-white">
-            <circle cx="8" cy="5" r="3" stroke="currentColor" strokeWidth="1.5"/>
-            <path d="M2 14C2 11 4.5 9 8 9C11.5 9 14 11 14 14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-          </svg>
-        </div>
-      );
+      // 1:1 DM - no badge
+      return null;
     };
 
     return (
