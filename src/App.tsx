@@ -134,7 +134,7 @@ function App() {
                         {(['All', '1:1 DM', 'Multi-DM', 'Channel'] as FilterLocation[]).map((loc) => (
                           <button
                             key={loc}
-                            onClick={() => setFilterLocation(loc)}
+                            onClick={() => { setFilterLocation(loc); setSelectedItem(null); }}
                             className={`
                               px-2.5 py-1 text-xs rounded-md transition-colors
                               ${filterLocation === loc
@@ -158,7 +158,7 @@ function App() {
                         {(['All', 'message', '@mention', 'thread-reply'] as FilterNotification[]).map((notif) => (
                           <button
                             key={notif}
-                            onClick={() => setFilterNotification(notif)}
+                            onClick={() => { setFilterNotification(notif); setSelectedItem(null); }}
                             className={`
                               px-2.5 py-1 text-xs rounded-md transition-colors
                               ${filterNotification === notif
@@ -182,7 +182,7 @@ function App() {
                         {(['All', 'unread', 'read'] as FilterReadState[]).map((state) => (
                           <button
                             key={state}
-                            onClick={() => setFilterReadState(state)}
+                            onClick={() => { setFilterReadState(state); setSelectedItem(null); }}
                             className={`
                               px-2.5 py-1 text-xs rounded-md transition-colors
                               ${filterReadState === state
@@ -206,7 +206,7 @@ function App() {
                         {(['<1hr', '<24hr', '<7d', '>7d'] as InboxItemData['timeDisplay'][]).map((time) => (
                           <button
                             key={time}
-                            onClick={() => setTimeDisplay(time)}
+                            onClick={() => { setTimeDisplay(time); setSelectedItem(null); }}
                             className={`
                               px-2.5 py-1 text-xs rounded-md transition-colors
                               ${timeDisplay === time
@@ -231,7 +231,7 @@ function App() {
                     {inboxItems.map((item) => (
                       <div
                         key={item.id}
-                        className={`relative group cursor-pointer ${selectedItem?.id === item.id ? 'ring-2 ring-inset ring-blue-500' : ''}`}
+                        className={`relative group cursor-pointer ${selectedItem?.id === item.id ? 'border-l-[3px] border-l-[#a8a29e]' : 'border-l-[3px] border-l-transparent'}`}
                         onClick={() => handleItemClick(item)}
                       >
                         <InboxItem item={item} />
